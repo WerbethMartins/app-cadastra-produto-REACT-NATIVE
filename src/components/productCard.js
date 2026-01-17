@@ -1,0 +1,108 @@
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+
+export default function ProductCard({ product, onEdit, onDelete }) {
+  return (
+    <View style={styles.card}>
+      {/* Cabeçalho */}
+      <View style={styles.header}>
+        <Text style={styles.title}>{product.name}</Text>
+      </View>
+
+      {/* Conteúdo */}
+      <View style={styles.content}>
+        <View style={styles.row}>
+          <Text style={styles.label}>Preço</Text>
+          <Text style={styles.value}>R$ {Number(product.price).toFixed(2)}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Quantidade</Text>
+          <Text style={styles.value}>{product.quantity}</Text>
+        </View>
+      </View>
+
+      {/* Ações */}
+      <View style={styles.actions}>
+        <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+          <Text style={styles.buttonText}>✏️ Editar</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
+          <Text style={styles.buttonText}>🗑️ Excluir</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 12,
+    marginVertical: 8,
+    elevation: 4, // sombra Android
+  },
+
+  header: {
+    marginBottom: 8,
+  },
+
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1F2937',
+  },
+
+  content: {
+    marginVertical: 8,
+    gap: 4,
+  },
+
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  label: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+
+  value: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
+  },
+
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
+  },
+
+  editButton: {
+    flex: 1,
+    marginRight: 6,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: '#E0F2FE',
+    alignItems: 'center',
+  },
+
+  deleteButton: {
+    flex: 1,
+    marginLeft: 6,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+  },
+
+  buttonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
+  },
+});
