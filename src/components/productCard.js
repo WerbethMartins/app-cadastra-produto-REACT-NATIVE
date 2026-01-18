@@ -1,8 +1,32 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 
 export default function ProductCard({ product, onEdit, onDelete }) {
+
+  // Referência para animação
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const heightAnim = useRef(new Animated.Value(1)).current;
+
+  // Função para animar a exclusão
+  function handleDelete() {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(heightAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      onDelete(); // Remove o estado após a animação
+    });
+  }
+
   return (
-    <View style={styles.card}>
+    <Animated.View style={[styles.card, { opacity: fadeAnim, transform: [{ scaleY: heightAnim }] }]}>
       {/* Cabeçalho */}
       <View style={styles.header}>
         <Text style={styles.title}>{product.name}</Text>
@@ -27,11 +51,11 @@ export default function ProductCard({ product, onEdit, onDelete }) {
           <Text style={styles.buttonText}>✏️ Editar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
           <Text style={styles.buttonText}>🗑️ Excluir</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

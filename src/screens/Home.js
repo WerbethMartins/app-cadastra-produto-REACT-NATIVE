@@ -1,81 +1,132 @@
-import React from 'react';
-import { View, StyleSheet, Text, Button, Image, TouchableOpacity } from 'react-native';
+import { useEffect, useReducer, useRef } from 'react';
+import { View, StyleSheet, Text, Button, Image, TouchableOpacity, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import ProductList from './ProductList';
-
 export default function Home() {
+
     const navigation = useNavigation();
+
+    // Referências para a animação
+    const opacity = useRef(new Animated.Value(1)).current;
+    const translateY = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+      Animated.parallel([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, []);
+
     return (
-        <View style={styles.container}>
-        
-        {/* Header */}
-        <View style={styles.header}>
-            <Text style={styles.title}>Bem-vindo 👋</Text>
-            <Text style={styles.subtitle}>
-                Gerencie seus produtos de forma simples e rápida
-            </Text>
-        </View>
+      <Animated.View style={styles.container}>
 
-        {/* Hero */}
-        <View style={styles.hero}>
-            <Image
-                source={require('../../assets/product-management.png')}
-                style={styles.image}
-                resizeMode="contain"
-            />
+          {/* Hero */}
+          <View style={styles.hero}>
+              
+              <View style={styles.logoSection}>
+                <Image
+                  source={require('../../assets/product-management.png')}
+                  style={styles.image}
+                  resizeMode="contain"
+                />
+                <Text style={styles.title}>
+                    ProductApp
+                </Text>
+                <Text style={styles.subTitle}>
+                    Gerencie seus produtos de forma simples e rápida
+                </Text>
+              </View>
 
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.navigate('Lista de Produtos')}
-            >
-            <Text style={styles.buttonText}>Entrar</Text>
-            </TouchableOpacity>
-        </View>
-        <Text style={styles.footer}>© 2024 ProductApp. Criado por: Werbeth</Text>
-        </View>
+              <View style={styles.actions}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Lista de Produtos')}
+                >
+                  <Text style={styles.buttonText}>Entrar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Sair')}>
+                  <Text style={styles.buttonText}>Sair</Text>
+                </TouchableOpacity>
+              </View>
+          </View>
+          <Text style={styles.footer}>© 2024 ProductApp. Criado por: Werbeth</Text>
+        </Animated.View>
     ); 
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f2f2',
-    padding: 24,
+    display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'space-between',
+    gap: 20,
+    backgroundColor: '#176c77',
+    padding: 24,
+    width: '100%',
+    marginBottom: 50,
   },
-
-  header: {
-    marginTop: 40,
-  },
-
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#222',
-  },
-
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 8,
-  },
-
   hero: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 40,
+    padding: 10,
+    marginVertical: 60,
+  },
+  logoSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-
+  title: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  subTitle: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 5,
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
   image: {
-    width: 260,
-    height: 260,
-    marginBottom: 30,
+    width: 250,
+    height: 220,
+    marginBottom: 5,
+  },
+
+  actions: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
   },
 
   button: {
+    borderRadius: 30,
     backgroundColor: '#06beaf',
     paddingVertical: 14,
     paddingHorizontal: 60,
-    borderRadius: 30,
+    minWidth: '60%',
     elevation: 4,
   },
 
@@ -83,12 +134,16 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
 
   footer: {
     textAlign: 'center',
     fontSize: 14,
-    color: '#aaa',
+    color: '#fffdfd',
     marginBottom: 20,
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
 });

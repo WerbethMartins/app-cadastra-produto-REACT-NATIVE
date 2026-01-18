@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import { useProduct } from '../context/productContext';
 
@@ -19,6 +19,9 @@ export default function ProductForm({ navigation }) {
       console.log('Campos obrigatórios!');
       return;
     }
+
+    // Substituir vírgula por ponto no preço para conversão correta
+    price = price.replace(',', '.');
 
     await addProduct(
       name,
@@ -42,7 +45,9 @@ export default function ProductForm({ navigation }) {
         <TextInput style={styles.input} placeholder="Quantidade" keyboardType="numeric" onChangeText={setQuantity} />
       </View>
 
-      <Button title="Salvar" onPress={handleSave} />
+      <TouchableOpacity style={styles.button} onPress={handleSave}>
+        <Text style={styles.buttonText}>Criar Produto</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -91,5 +96,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 12,
     width: '100%'
+  },
+  button: {
+    backgroundColor: '#06beaf',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 }); 

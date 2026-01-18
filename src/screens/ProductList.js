@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { useProduct } from '../context/productContext';
 import ProductCard from '../components/productCard';
-import { FlatList, Button, View, Text, Alert, StyleSheet, Image } from 'react-native';
+import { FlatList, Button, View, Text, Alert, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 export default function ProductList() {
   const { products, loading, removeProduct } = useProduct();
@@ -15,21 +15,6 @@ export default function ProductList() {
     );
   }
 
-  function handleDelete(id) {
-    Alert.alert(
-      'Excluir produto',
-      'Tem certeza que deseja excluir?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => await removeProduct(id),
-        },
-      ]
-    );
-  }
-
   if (loading) {
     return null;
   }
@@ -39,11 +24,9 @@ export default function ProductList() {
 
       <View style={styles.navigateButtonSection}>
         <Image source={require('../../assets/add-product.png')}/>
-        <Button
-          style={styles.navigateButton}
-          title="Adicionar Produto"
-          onPress={() => navigation.navigate('Cadastro')}
-        />
+        <TouchableOpacity onPress={() => navigation.navigate('Cadastro')} style={styles.navigateButton}>
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Adicionar Produto</Text>
+        </TouchableOpacity>
       </View>
       
       <View style={styles.productList}>
@@ -54,7 +37,7 @@ export default function ProductList() {
             <ProductCard
               product={item}
               onEdit={() => navigation.navigate('Editar', { product: item })}
-              onDelete={() => handleDelete(item.id)}
+              onDelete={() => removeProduct(item.id)}
             />
           )}
         />
@@ -79,17 +62,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderColor: '#000',
-    borderWidth: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
     borderRadius: 10,
     padding: 5,
     marginTop: 10,
     width: '90%',
-    boxShadow: '2px 2px 1px rgba(0, 0, 0, 0.3)',
+    boxShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)',
   },
   navigateButton: {
     borderRadius: 10,
-    boxShadow: '2px 2px 1px rgba(0, 0, 0, 0.3)',
+    backgroundColor: '#06beaf',
+    padding: 10,
+    boxShadow: '1px 1px 1px rgba(0, 0, 0, 0.3)',
   },  
   productList: {
     padding: 5,
