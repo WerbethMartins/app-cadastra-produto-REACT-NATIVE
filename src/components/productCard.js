@@ -1,72 +1,176 @@
-import { useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, PanResponder } from 'react-native';
+
+const SCREEN_WIDTH = 400; // Largura aproximada da tela
+const SWIPE_THRESHOLD = -0.25 * SCREEN_WIDTH; // Limite para considerar swipe
 
 export default function ProductCard({ product, onEdit, onDelete }) {
-
+  
   // Referência para animação
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const heightAnim = useRef(new Animated.Value(1)).current;
+  const translateX = useRef(new Animated.Value(0)).current;
+  const scaleY = useRef(new Animated.Value(80)).current; // altura inicial real
+  const opacity = useRef(new Animated.Value(1)).current;
 
-  // Função para animar a exclusão
-  function handleDelete() {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-      Animated.timing(heightAnim, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onDelete(); // Remove o estado após a animação
+  // Estado para controle de swipe
+  const [swipeEnabled] = useState(true);
+
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => swipeEnabled,
+    onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 2,
+
+    onPanResponderMove: (_, gesture) => {
+      // Só permite arrastar para esquerda
+      if (gesture.dx < 0) {
+        translateX.setValue(gesture.dx);
+      }
+    },
+
+    onPanResponderRelease: (_, gesture) => {
+      if (gesture.dx < SWIPE_THRESHOLD) {
+        // Usuário arrastou o suficiente = deleta
+        Animated.parallel([
+          Animated.timing(translateX, {
+            toValue: -SCREEN_WIDTH,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacity, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleY, {
+            toValue: 0,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          onDelete(product.id);
+        });
+      } else {
+        // Volta para posição original
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+          friction: 8,
+        }).start();
+      }
+    },
+
+    onPanResponderTerminate: () => {
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+      },
     });
-  }
+
+  const handleDeleteButton = () => {
+    // Comportamento do swipe completo
+    Animated.parallel([
+      Animated.timing(translateX, { toValue: -SCREEN_WIDTH, duration: 180, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 0, duration: 180, useNativeDriver: true }),
+      Animated.timing(scaleY, { toValue: 0, duration: 220, useNativeDriver: false }),
+    ]).start(() => onDelete(product.id));
+  };
 
   return (
-    <Animated.View style={[styles.card, { opacity: fadeAnim, transform: [{ scaleY: heightAnim }] }]}>
-      {/* Cabeçalho */}
-      <View style={styles.header}>
-        <Text style={styles.title}>{product.name}</Text>
+    <Animated.View style={[styles.card, 
+      { 
+        opacity,
+        transform: [{ 
+          // Corrija esse código, chat
+          scaleY: scaleY.interpolate({
+            inputRange: [0, 80],
+            outputRange: [0, 1],
+          }),
+        }],
+        transformOrigin: 'top',
+        overflow: 'hidden', 
+      }
+    ]}>
+
+      {/* Fundo vermelho que aparece ao arrastar */}
+      <View style={styles.deleteBackground}>
+        <Text style={styles.deleteText}>Excluir</Text>
       </View>
 
-      {/* Conteúdo */}
-      <View style={styles.content}>
-        <View style={styles.row}>
-          <Text style={styles.label}>Preço</Text>
-          <Text style={styles.value}>R$ {Number(product.price).toFixed(2)}</Text>
+      {/* Animação mover o card */}
+      <Animated.View
+        {...panResponder.panHandlers}
+        style={[
+          styles.foregroundCard,
+          {
+            transform: [{ translateX }],
+          },
+        ]}
+      >
+        {/* Cabeçalho */}
+        <View style={styles.header}>
+          <Text style={styles.title}>{product.name}</Text>
         </View>
 
-        <View style={styles.row}>
-          <Text style={styles.label}>Quantidade</Text>
-          <Text style={styles.value}>{product.quantity}</Text>
+        {/* Conteúdo do produto */}
+        <View style={styles.content}>
+          <View style={styles.row}>
+            <Text style={styles.label}>Preço</Text>
+            <Text style={styles.value}>R$ {Number(product.price).toFixed(2)}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Quantidade</Text>
+            <Text style={styles.value}>{product.quantity}</Text>
+          </View>
         </View>
-      </View>
 
-      {/* Ações */}
-      <View style={styles.actions}>
-        <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-          <Text style={styles.buttonText}>✏️ Editar</Text>
-        </TouchableOpacity>
+        {/* Botões */}
+        <View style={styles.actions}>
+          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+            <Text style={styles.buttonText}>✏️ Editar</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Text style={styles.buttonText}>🗑️ Excluir</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteButton}>
+            <Text style={styles.buttonText}>🗑️ Excluir</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    overflow: 'hidden', 
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 16,
+    padding: 20,
     marginHorizontal: 12,
     marginVertical: 8,
     elevation: 4, // sombra Android
+  },
+
+  deleteBackground: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
+    paddingRight: 10,
+    width: '100%',
+  },
+
+  deleteText: {
+    color: '#eb0e0e',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },  
+
+  foregroundCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    width: '100%',
+    elevation: 4, 
   },
 
   header: {
@@ -117,6 +221,7 @@ const styles = StyleSheet.create({
 
   deleteButton: {
     flex: 1,
+    display: 'none',
     marginLeft: 6,
     paddingVertical: 10,
     borderRadius: 8,

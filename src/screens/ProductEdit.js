@@ -1,11 +1,12 @@
-import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity, Animated } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
 import { useProduct } from '../context/productContext';
 
 export default function ProductEdit({ route, navigation }) {
   const { product } = route.params;
   const { editProduct } = useProduct();
 
+  // Estados 
   const [name, setName] = useState(product.name);
   const [price, setPrice] = useState(String(product.price));
   const [quantity, setQuantity] = useState(String(product.quantity));

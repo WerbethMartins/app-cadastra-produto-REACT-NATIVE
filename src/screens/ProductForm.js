@@ -20,14 +20,13 @@ export default function ProductForm({ navigation }) {
       return;
     }
 
-    // Substituir vírgula por ponto no preço para conversão correta
-    price = price.replace(',', '.');
-
     await addProduct(
       name,
-      Number(price),
+      Number(price.replace(',', '.')),
       Number(quantity)
     );
+
+    console.log(`Produto ${name} cadastrado com sucesso!`);
 
     navigation.goBack();
   }

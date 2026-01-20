@@ -1,11 +1,53 @@
 import { useNavigation } from '@react-navigation/native';
 import { useProduct } from '../context/productContext';
+
+// Componentes
 import ProductCard from '../components/productCard';
-import { FlatList, Button, View, Text, Alert, StyleSheet, Image, TouchableOpacity } from 'react-native';
+
+// React e React Native
+import { FlatList, Button, View, Text, Alert, StyleSheet, Image, TouchableOpacity, Animated } from 'react-native';
+import { useState, useRef, useEffect} from 'react';
 
 export default function ProductList() {
   const { products, loading, removeProduct } = useProduct();
   const navigation = useNavigation();
+
+  // Referências para as animações
+  const buttonOpacity = useRef(new Animated.Value(0)).current;
+  const buttonTranslateX = useRef(new Animated.Value(-50)).current;
+  const iconOpacity = useRef(new Animated.Value(0)).current;
+  const iconTranslateX = useRef(new Animated.Value(50)).current;
+
+  // Animação de entrada dos botões e ícones
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(buttonOpacity, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(buttonTranslateX, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(iconOpacity, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(iconTranslateX, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  // Função para remover produto com animação
+  function handleRemove(id){
+    removeProduct(id);
+  }
 
   if (loading) {
     return (
@@ -15,19 +57,28 @@ export default function ProductList() {
     );
   }
 
-  if (loading) {
-    return null;
-  }
-
   return (
     <View style={styles.container}>
+        <View style={styles.navigateButtonSection}>
+          <Animated.View
+            style={{ 
+              opacity: iconOpacity, transform: [{ translateX: iconTranslateX }],
+            }}
+          >
+            <Image source={require('../../assets/add-product.png')}/>
+          </Animated.View>
 
-      <View style={styles.navigateButtonSection}>
-        <Image source={require('../../assets/add-product.png')}/>
-        <TouchableOpacity onPress={() => navigation.navigate('Cadastro')} style={styles.navigateButton}>
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Adicionar Produto</Text>
-        </TouchableOpacity>
-      </View>
+          {/* Animação do botão */}
+          <Animated.View 
+            style={{ 
+              opacity: buttonOpacity, transform: [{ translateX: buttonTranslateX }], 
+            }}
+          >
+            <TouchableOpacity onPress={() => navigation.navigate('Cadastro')} style={styles.navigateButton}>
+              <Text style={{ color: '#fff', fontWeight: 'bold' }}>Adicionar Produto</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
       
       <View style={styles.productList}>
         <FlatList
@@ -37,7 +88,7 @@ export default function ProductList() {
             <ProductCard
               product={item}
               onEdit={() => navigation.navigate('Editar', { product: item })}
-              onDelete={() => removeProduct(item.id)}
+              onDelete={() => handleRemove(item.id)}
             />
           )}
         />

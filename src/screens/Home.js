@@ -1,74 +1,136 @@
-import { useEffect, useReducer, useRef } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { View, StyleSheet, Text, Button, Image, TouchableOpacity, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native';
 
 export default function Home() {
-
     const navigation = useNavigation();
 
+    // Estados 
+    const [loading, setLoading] = useState(true);
+    const [showActions, setShowActions] = useState(false);
+
     // Referências para a animação
-    const opacity = useRef(new Animated.Value(1)).current;
-    const translateY = useRef(new Animated.Value(1)).current;
+    const contentOpacity = useRef(new Animated.Value(0)).current;
+    const contentTranslateY = useRef(new Animated.Value(20)).current;
+
+    const actionsOpacity = useRef(new Animated.Value(0)).current;
+    const actionsTranslateY = useRef(new Animated.Value(30)).current;
 
     useEffect(() => {
-      Animated.parallel([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateY, {
-          toValue: 0,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      // Simula loading inicial
+      const timer = setTimeout(() => {
+        setLoading(false);
+        Animated.parallel([
+          Animated.timing(contentOpacity, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(contentTranslateY, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          // Após o conteúdo aparecer, mostra os botões
+          setShowActions(true);
+
+          Animated.parallel([
+            Animated.timing(actionsOpacity, {
+              toValue: 1,
+              duration: 500,
+              useNativeDriver: true,
+            }),
+            Animated.timing(actionsTranslateY, {
+              toValue: 0,
+              duration: 500,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }); 
+      }, 2000); // Tempo de loading
+
+      return () => clearTimeout(timer);
+
     }, []);
 
-    return (
-      <Animated.View style={styles.container}>
+    if(loading) {
+      return(
+        <View style={styles.loadingContainer}>
+          <Image
+            source={require('../../assets/imageHome.png')}
+            style={styles.image}
+            resizeMode="contain"
+          />
+          <ActivityIndicator style={ styles.loadingIndicator } size="large" color='#06beaf' />
+        </View>
+      );
+    }
 
-          {/* Hero */}
-          <View style={styles.hero}>
-              
+    return (
+      <View style={styles.container}>
+
+          {/* Conteúdo principal */}
+          <Animated.View 
+              style={[ styles.hero, { 
+                opacity: contentOpacity, transform: [{ translateY: contentTranslateY }], 
+              },
+            ]}
+          >
+            {/* Seção de logo, titulo e sub-titulo */}
               <View style={styles.logoSection}>
                 <Image
-                  source={require('../../assets/product-management.png')}
+                  source={require('../../assets/imageHome.png')}
                   style={styles.image}
                   resizeMode="contain"
                 />
-                <Text style={styles.title}>
-                    ProductApp
-                </Text>
-                <Text style={styles.subTitle}>
-                    Gerencie seus produtos de forma simples e rápida
-                </Text>
+                
               </View>
 
-              <View style={styles.actions}>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Lista de Produtos')}
+              {showActions && (
+                <Animated.View 
+                  style={{ 
+                    opacity: actionsOpacity, transform: [{ translateY: actionsTranslateY }],
+                  }}
                 >
-                  <Text style={styles.buttonText}>Entrar</Text>
-                </TouchableOpacity>
+                    <View style={styles.actions}>
+                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Lista de Produtos')}
+                    >
+                      <Text style={styles.buttonText}>Entrar</Text>
+                    </TouchableOpacity>
+                  </View>
 
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Sair')}>
-                  <Text style={styles.buttonText}>Sair</Text>
-                </TouchableOpacity>
-              </View>
-          </View>
-          <Text style={styles.footer}>© 2024 ProductApp. Criado por: Werbeth</Text>
-        </Animated.View>
+                </Animated.View>
+              )}
+          </Animated.View>
+
+          <Text style={styles.footer}>
+            © 2024 ProductApp. Criado por: Werbeth
+          </Text>
+        </View>
     ); 
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0572a5',
+    padding: 24,
+    marginBottom: 50,
+  },
+  loadingIndicator: {
+    marginTop: 20,
+  },  
   container: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
     gap: 20,
-    backgroundColor: '#176c77',
+    backgroundColor: '#0572a5',
     padding: 24,
     width: '100%',
     marginBottom: 50,
@@ -88,8 +150,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  textSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRadius: 15,
+    borderColor: '#ccc',
+    paddingVertical: 5,
+    marginTop: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+  },
   title: {
-    fontSize: 25,
+    fontSize: 40,
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#fff',
@@ -99,7 +175,7 @@ const styles = StyleSheet.create({
   },
   subTitle: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
     marginVertical: 5,
@@ -108,8 +184,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   image: {
-    width: 250,
-    height: 220,
+    width: 400,
+    height: 450,
     marginBottom: 5,
   },
 
@@ -126,7 +202,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#06beaf',
     paddingVertical: 14,
     paddingHorizontal: 60,
-    minWidth: '60%',
+    minWidth: '100%',
     elevation: 4,
   },
 
