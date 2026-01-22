@@ -1,32 +1,30 @@
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { useState } from 'react';
 import { useProduct } from '../context/productContext';
+import { categories } from '../utils/Categories';
 
 export default function ProductForm({ navigation }) {
-  const { addProduct, ready } = useProduct();
+  const { addProduct } = useProduct();
 
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [category, setCategory] = useState(null);
+  const [openCategories, setOpenCategories] = useState(false);
 
   async function handleSave() {
-    if (!ready) {
-      console.log('O banco ainda não está pronto!');
-      return;
-    }
 
-    if (!name || !price || !quantity) {
-      console.log('Campos obrigatórios!');
+    if (!name || !price || !quantity || !category) {
+      Alert.alert('Erro', 'Preencha todos os campos');
       return;
     }
 
     await addProduct(
-      name,
+      name.trim(),
       Number(price.replace(',', '.')),
-      Number(quantity)
+      Number(quantity),
+      category 
     );
-
-    console.log(`Produto ${name} cadastrado com sucesso!`);
 
     navigation.goBack();
   }
@@ -39,9 +37,50 @@ export default function ProductForm({ navigation }) {
       </View>
 
       <View style={styles.form}>
-        <TextInput style={styles.input} placeholder="Nome" onChangeText={setName} />
-        <TextInput style={styles.input} placeholder="Preço" keyboardType="numeric" onChangeText={setPrice} />
-        <TextInput style={styles.input} placeholder="Quantidade" keyboardType="numeric" onChangeText={setQuantity} />
+        {/* Dropdown de categoria */}
+        <TouchableOpacity
+          style={styles.select}
+          onPress={() => setOpenCategories(!openCategories)}
+        >
+          <Text style={styles.selectText}>
+            {categories.find(c => c.value === category)?.label || 'Selecione uma categoria'}
+          </Text>
+        </TouchableOpacity>
+
+        {openCategories && (
+          <View style={styles.dropdown}>
+            {categories.map(cat => (
+              <TouchableOpacity
+                key={cat.value}
+                style={styles.option}
+                onPress={() => {
+                  setCategory(cat.value); 
+                  setOpenCategories(false);
+                }}
+              >
+                <Text style={styles.optionText}>{cat.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Nome"
+          onChangeText={setName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Preço"
+          keyboardType="numeric"
+          onChangeText={setPrice}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Quantidade"
+          keyboardType="numeric"
+          onChangeText={setQuantity}
+        />
       </View>
 
       <TouchableOpacity style={styles.button} onPress={handleSave}>
@@ -59,6 +98,7 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 20,
   },
+
   formHeader: {
     display: 'flex',
     flexDirection: 'row',
@@ -72,11 +112,13 @@ const styles = StyleSheet.create({
     padding: 15,
     width: '100%'
   },
+
   productFormTitle: {
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
   },
+
   form: {
     display: 'flex',
     justifyContent: 'flex-start',
@@ -87,6 +129,40 @@ const styles = StyleSheet.create({
     padding: 10,
     boxShadow: '2px 2px 1px rgba(0, 0, 0, 0.3)',
   },
+
+  select: {
+  borderWidth: 1,
+  borderColor: '#ccc',
+  borderRadius: 8,
+  padding: 12,
+  marginBottom: 8,
+  backgroundColor: '#fff',
+},
+
+  selectText: {
+    fontSize: 14,
+    color: '#111',
+  },
+
+  dropdown: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    marginBottom: 12,
+    overflow: 'hidden',
+  },
+
+  option: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+
+  optionText: {
+    fontSize: 14,
+    color: '#333',
+  },
   input: {
     height: 48,
     borderWidth: 1,
@@ -96,12 +172,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     width: '100%'
   },
+
   button: {
     backgroundColor: '#06beaf',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
   },
+
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',

@@ -12,59 +12,49 @@ const ProductContext = createContext();
 export function ProductProvider({ children }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [ready, setReady] = useState(false);
 
   async function loadProducts() {
     const data = await getProducts();
     setProducts(data);
   }
 
-  async function addProduct(name, price, quantity) {
-    await createProduct(name, price, quantity);
+  async function addProduct(name, price, quantity, category) {
+    await createProduct(name, price, quantity, category);
     await loadProducts();
-    console.log('🟢 Produto salvo:', name, price, quantity);
   }
 
-  async function editProduct(id, name, price, quantity) {
-    await updateProduct(id, name, price, quantity);
+  async function editProduct(id, name, price, quantity, category) {
+    await updateProduct(id, name, price, quantity, category);
     await loadProducts();
   }
 
   async function removeProduct(id) {
     await deleteProduct(id);
     await loadProducts();
-
-    setProducts(prev =>
-      prev.filter(product => product.id !== id)
-    );
-
-    console.log('Removendo produto id:', id);
   }
 
   useEffect(() => {
-    async function start() {
-      try {
-        console.log('🔵 Iniciando banco...');
-        await initDB();
-        await loadProducts();
-        setReady(true);
-        console.log('🟢 Banco pronto');
-      } catch (error) {
-        console.log('🔴 ERRO NO INIT DATABASE:', error);
-      } finally {
-        setLoading(false);
-      }
+  async function start() {
+    try {
+      console.log('🔵 Iniciando banco...');
+      await initDB(); 
+      await loadProducts();
+      console.log('🟢 Banco pronto');
+    } catch (error) {
+      console.log('🔴 ERRO NO INIT DATABASE:', error);
+    } finally {
+      setLoading(false);
     }
+  }
+  start();
+}, []);
 
-    start();
-  }, []);
 
   return (
     <ProductContext.Provider
       value={{
         products,
         loading,
-        ready,
         addProduct,
         editProduct,
         removeProduct,

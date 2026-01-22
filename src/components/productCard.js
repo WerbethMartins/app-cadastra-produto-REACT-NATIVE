@@ -1,16 +1,21 @@
 import { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, PanResponder } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, PanResponder, Image } from 'react-native';
+import { productImages } from '../utils/productImages';
 
 const SCREEN_WIDTH = 400; // Largura aproximada da tela
 const SWIPE_THRESHOLD = -0.25 * SCREEN_WIDTH; // Limite para considerar swipe
 
 export default function ProductCard({ product, onEdit, onDelete }) {
+
+  const image = productImages[product.category] || productImages.default;
   
   // Referência para animação
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const scaleY = useRef(new Animated.Value(80)).current; // altura inicial real
   const opacity = useRef(new Animated.Value(1)).current;
+
+  console.log('PRODUCT:', product);
 
   // Estado para controle de swipe
   const [swipeEnabled] = useState(true);
@@ -108,7 +113,13 @@ export default function ProductCard({ product, onEdit, onDelete }) {
       >
         {/* Cabeçalho */}
         <View style={styles.header}>
-          <Text style={styles.title}>{product.name}</Text>
+          <View style={styles.imageSection}>
+            <Image source={image} style={styles.image} />
+          </View>
+          <View style={styles.titleSection}>
+            <Text style={styles.title}>{product.name}</Text>
+            <Text style={styles.category}>{`Categoria: ${product.category}`}</Text>
+          </View>
         </View>
 
         {/* Conteúdo do produto */}
@@ -140,13 +151,20 @@ export default function ProductCard({ product, onEdit, onDelete }) {
 
 const styles = StyleSheet.create({
   card: {
-    overflow: 'hidden', 
+    overflow: 'hidden',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 20,
     marginHorizontal: 12,
     marginVertical: 8,
     elevation: 4, // sombra Android
+  },
+
+  image: {
+    width: 100,
+    height: 100,
+    marginRight: 10,
+    resizeMode: 'contain',
   },
 
   deleteBackground: {
@@ -174,14 +192,35 @@ const styles = StyleSheet.create({
   },
 
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
     marginBottom: 8,
   },
 
+  titleSection: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    gap: 10,
+    padding: 10,
+    height: 100,
+  },
+
   title: {
+    textAlign: 'start',
+    borderBottomWidth: 1,
     fontSize: 18,
     fontWeight: '700',
     color: '#1F2937',
   },
+
+  category: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 4,
+  },  
 
   content: {
     marginVertical: 8,

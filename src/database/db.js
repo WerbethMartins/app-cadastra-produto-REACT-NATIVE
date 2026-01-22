@@ -2,31 +2,44 @@ import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
 let db = null;
-
-// Para obter a instância do banco de dados
-export function getDB() {
-    if(!db){
-        throw new Error('Banco não incializado. Chame initiDb() primeiro');
-    }
-    return db;
-}
+let initPromise = null;
 
 export async function initDB() {
-    if(Platform.OS === 'web'){
-        console.log("SQLite não suporta no Web!");
+  if (db) return db;
+
+  if(initPromise)return initPromise;
+
+  initPromise = (async () => {
+
+    if (Platform.OS === 'web') {
+      throw new Error('SQLite não é suportado na web');
     }
-    db = SQLite.openDatabaseSync('products.db');
 
-    await db.execAsync(
-    `
+    try {
+      db = await SQLite.openDatabaseAsync('products.db');
+
+      await db.execAsync(`
         CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            price REAL NOT NULL,
-            quantity INTEGER NOT NULL
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          price REAL NOT NULL,
+          quantity INTEGER NOT NULL,
+          category TEXT NOT NULL
         );
-    `);
+      `);
+      
+      return db;
+    } catch (error) {
+      db = null;
+      initPromise = null;
+      throw error;
+    }
+  })();
 
-    return db;
+  return initPromise;
 }
 
+export function getDB() {
+  if (!db) throw new Error('DB not initialized');
+  return db;
+}
