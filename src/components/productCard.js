@@ -15,7 +15,8 @@ export default function ProductCard({ product, onEdit, onDelete }) {
   const scaleY = useRef(new Animated.Value(80)).current; // altura inicial real
   const opacity = useRef(new Animated.Value(1)).current;
 
-  console.log('PRODUCT:', product);
+  // DEBUG
+  // console.log('PRODUCT:', product);
 
   // Estado para controle de swipe
   const [swipeEnabled] = useState(true);
@@ -154,17 +155,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 20,
-    marginHorizontal: 12,
-    marginVertical: 8,
+    marginHorizontal: 30,
+    marginVertical: 5,
+    width: '85%',
+    height: 200,
     elevation: 4, // sombra Android
-  },
-
-  image: {
-    width: 100,
-    height: 100,
-    marginRight: 10,
-    resizeMode: 'contain',
   },
 
   deleteBackground: {
@@ -172,13 +167,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
     borderRadius: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#c40303',
     paddingRight: 10,
     width: '100%',
   },
 
   deleteText: {
-    color: '#eb0e0e',
+    color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },  
@@ -196,7 +191,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    marginBottom: 8,
+  },
+
+  image: {
+    width: 100,
+    height: 80,
+    marginRight: 10,
+    resizeMode: 'contain',
   },
 
   titleSection: {
@@ -204,7 +205,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     gap: 10,
+    width: '65%',
     padding: 10,
+    marginLeft: 10,
     height: 100,
   },
 

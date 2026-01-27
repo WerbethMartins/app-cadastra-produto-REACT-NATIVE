@@ -3,7 +3,9 @@ import { View, StyleSheet, Text, Button, Image, TouchableOpacity, Animated } fro
 import { useNavigation } from '@react-navigation/native';
 import { ActivityIndicator } from 'react-native';
 
-export default function Home() {
+import { logout } from '../service/AuthService';
+
+export default function Home(products, setProducts) {
     const navigation = useNavigation();
 
     // Estados 
@@ -16,6 +18,17 @@ export default function Home() {
 
     const actionsOpacity = useRef(new Animated.Value(0)).current;
     const actionsTranslateY = useRef(new Animated.Value(30)).current;
+
+    // Lógica de sair 
+    const handleLogout = async () => {
+      try {
+        await logout();
+        navigation.replace('Login'); // Redireciona para a tela de login
+        setProducts([]); // Limpa os produtos ao sair
+      } catch (error) {
+        Alert.alert("Erro", "Não foi possível sair.");
+      }
+    };
 
     useEffect(() => {
       // Simula loading inicial
@@ -99,6 +112,9 @@ export default function Home() {
                     >
                       <Text style={styles.buttonText}>Entrar</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                      <Text style={styles.textLogout}>Sair</Text>
+                    </TouchableOpacity>
                   </View>
 
                 </Animated.View>
@@ -106,7 +122,7 @@ export default function Home() {
           </Animated.View>
 
           <Text style={styles.footer}>
-            © 2024 ProductApp. Criado por: Werbeth
+            © 2026 ProductApp. Criado por: Werbeth
           </Text>
         </View>
     ); 
@@ -129,12 +145,33 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    gap: 20,
+    gap: 15,
     backgroundColor: '#0572a5',
     padding: 24,
     width: '100%',
     marginBottom: 50,
   },
+
+  logoutButton: {
+    borderRadius: 30,
+    backgroundColor: '#06beaf',
+    paddingVertical: 14,
+    paddingHorizontal: 30,
+    width: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
+  },  
+
+  textLogout: {
+    textAlign: 'center',
+    color: '#fff', 
+    fontWeight: 'bold',
+    fontSize: 18,
+  },  
+
   hero: {
     display: 'flex',
     flexDirection: 'column',
@@ -142,14 +179,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 40,
     padding: 10,
-    marginVertical: 60,
+    marginVertical: 40,
   },
+  
   logoSection: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   textSection: {
     display: 'flex',
     flexDirection: 'column',
@@ -201,8 +240,12 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: '#06beaf',
     paddingVertical: 14,
-    paddingHorizontal: 60,
-    minWidth: '100%',
+    paddingHorizontal: 30,
+    width: 200,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
     elevation: 4,
   },
 

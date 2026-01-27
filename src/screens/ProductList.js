@@ -3,13 +3,16 @@ import { useProduct } from '../context/productContext';
 
 // Componentes
 import ProductCard from '../components/productCard';
+import { HeaderSummary } from '../components/HeaderSummary';
+import {monthsNames } from '../components/MonthSelector';
+import { MonthSelector } from '../components/MonthSelector';
 
 // React e React Native
-import { FlatList, Button, View, Text, Alert, StyleSheet, Image, TouchableOpacity, Animated } from 'react-native';
+import { FlatList, Button, View, Text, StyleSheet, Image, TouchableOpacity, Animated, ScrollView } from 'react-native';
 import { useState, useRef, useEffect} from 'react';
 
 export default function ProductList() {
-  const { products, loading, removeProduct } = useProduct();
+  const { filteredProducts,products, selectedMonth,loading, removeProduct } = useProduct();
   const navigation = useNavigation();
 
   // Referências para as animações
@@ -59,6 +62,7 @@ export default function ProductList() {
 
   return (
     <View style={styles.container}>
+
         <View style={styles.navigateButtonSection}>
           <Animated.View
             style={{ 
@@ -79,20 +83,30 @@ export default function ProductList() {
             </TouchableOpacity>
           </Animated.View>
         </View>
+
+        <MonthSelector />
       
-      <View style={styles.productList}>
-        <FlatList
-          data={products}
-          keyExtractor={item => item.id.toString()}
-          renderItem={({ item }) => (
-            <ProductCard
-              product={item}
-              onEdit={() => navigation.navigate('Editar', { product: item })}
-              onDelete={() => handleRemove(item.id)}
+          <View style={styles.productList}>
+            <FlatList
+              data={filteredProducts}
+              keyExtractor={item => item.id.toString()}
+              contentContainerStyle={{ paddingBottom: 20 }}
+              ListHeaderComponent={<HeaderSummary />} /* Ele aparece no topo */
+              renderItem={({ item }) => (
+                <ProductCard
+                  product={item}
+                  onEdit={() => navigation.navigate('Editar', { product: item })}
+                  onDelete={() => handleRemove(item.id)}
+                />
+              )}
+              ListEmptyComponent={
+                <Text style={{ textAlign: 'center', marginTop: 20 }}>
+                  Nenhum produto cadastrado neste mês.
+                </Text> 
+              }
             />
-          )}
-        />
-      </View>
+          </View>
+      
     </View>
   );
 }
@@ -101,12 +115,6 @@ export default function ProductList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    gap: 5,
-    width: '100%',
   },
   navigateButtonSection: {
     display: 'flex',
@@ -118,6 +126,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 5,
     marginTop: 10,
+    marginLeft: 20,
+    marginBottom: 10,
     width: '90%',
     boxShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)',
   },

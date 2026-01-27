@@ -24,7 +24,9 @@ export async function initDB() {
           name TEXT NOT NULL,
           price REAL NOT NULL,
           quantity INTEGER NOT NULL,
-          category TEXT NOT NULL
+          category TEXT NOT NULL,
+          userId TEXT NOT NULL, 
+          createdAt TEXT NOT NULL
         );
       `);
       
