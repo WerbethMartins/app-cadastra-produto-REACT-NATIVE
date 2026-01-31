@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { auth } from '../service/AuthService';
 import { onAuthStateChanged } from 'firebase/auth';
 import { initDB } from '../database/db';
+import { set } from 'firebase/database';
 import {
   getProducts,
   createProduct,
@@ -18,15 +19,40 @@ export function ProductProvider({ children }) {
   const [totalItems, setTotalItems] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Mês atual
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Ano atual
+  const uniqueProductNames = [...new Set(products.map(p => p.name))].sort();
+
+  // Função para calcular a diferença de preço de um produto específico
+  const getPriceDifference = (productName, currentPrice, currentDate, productBranding) => {
+    if (!currentDate) return null;
+    const currentItemDate = new Date(currentDate);
+
+    const history = products.filter(p => 
+      p.name.toLowerCase() === productName.toLowerCase() && 
+      p.branding?.toLowerCase() === productBranding?.toLowerCase() &&
+      new Date(p.createdAt) < currentItemDate
+    ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (history.length === 0) return null;
+
+    const lastPrice = history[0].price;
+    const diff = currentPrice - lastPrice;
+    
+    const percentage = (diff / lastPrice) * 100; 
+
+    return {
+      diff: diff.toFixed(2),
+      percentage: percentage.toFixed(1),
+      isHigher: diff > 0,
+      isLower: diff < 0
+    };
+  };
 
   // Filtrar os produtos pelo mês selecionado
   const filteredProducts = products.filter(product => {
     if (!product.createdAt) return false;
     const date = new Date(product.createdAt);
-    
     // LOG DE SEGURANÇA
     // console.log(`Comparando: ${date.getMonth()} vs ${selectedMonth} | ${date.getFullYear()} vs ${selectedYear}`);
-
     return (
       date.getMonth() === selectedMonth && 
       date.getFullYear() === selectedYear
@@ -50,13 +76,13 @@ export function ProductProvider({ children }) {
     }
   }
 
-  async function addProduct(name, price, quantity, category, ) {
-    await createProduct(name, price, quantity, category);
+  async function addProduct(name, price, quantity, category, branding = '') {
+    await createProduct(name, price, quantity, category, branding);
     await loadProducts();
   }
 
-  async function editProduct(id, name, price, quantity, category) {
-    await updateProduct(id, name, price, quantity, category);
+  async function editProduct(id, name, price, quantity, category, branding = '') {
+    await updateProduct(id, name, price, quantity, category, branding);
     await loadProducts();
   }
 
@@ -120,6 +146,8 @@ export function ProductProvider({ children }) {
         setSelectedMonth,
         selectedYear,
         setSelectedYear,
+        getPriceDifference,
+        uniqueProductNames,
         addProduct,
         editProduct,
         removeProduct,

@@ -1,16 +1,36 @@
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { useState } from 'react';
-import { useProduct } from '../context/productContext';
+import { useProduct, uniqueProductNames } from '../context/productContext';
 import { categories } from '../utils/Categories';
 
 export default function ProductForm({ navigation }) {
   const { addProduct } = useProduct();
-
+  const {uniqueProductNames} = useProduct();
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [quantity, setQuantity] = useState('');
   const [category, setCategory] = useState(null);
   const [openCategories, setOpenCategories] = useState(false);
+  const [branding, setBranding] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+
+  const handleNameChange = (text) => {
+    setName(text);
+    if(text.length > 0) {
+      // Filta os nomes que começam com o que o usuário digitou
+      const filtered = uniqueProductNames.filter(item =>
+        item.toUpperCase().includes(text.toUpperCase()) && item.toUpperCase() !== text.toUpperCase()
+      );
+      setSuggestions(filtered);
+    }else {
+      setSuggestions([]);
+    }
+  };
+
+  const selectSuggestion = (suggestion) => {
+    setName(suggestion);
+    setSuggestions([]); // Limpa as sugestões após selecionar
+  }
 
   async function handleSave() {
 
@@ -23,7 +43,8 @@ export default function ProductForm({ navigation }) {
       name.trim(),
       Number(price.replace(',', '.')),
       Number(quantity),
-      category 
+      category ,
+      branding.trim()
     );
 
     navigation.goBack();
@@ -66,9 +87,33 @@ export default function ProductForm({ navigation }) {
 
         <TextInput
           style={styles.input}
-          placeholder="Nome"
-          onChangeText={setName}
+          value={name}
+          placeholder="Ex: Arroz Branco"
+          onChangeText={handleNameChange}
         />
+
+        {/* Lista de sugestões */}
+        {suggestions.length > 0 &&(
+          <View style={styles.suggestionsContainer}>
+            {suggestions.map((item, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={styles.suggestionItem}
+                onPress={() => selectSuggestion(item)}
+              >
+                <Text style={styles.suggestionText}>✨ {item}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        <TextInput 
+          style={styles.input}
+          value={branding}
+          placeholder='Marca do Produto'
+          onChangeText={setBranding}
+        />
+
         <TextInput
           style={styles.input}
           placeholder="Preço"
@@ -163,6 +208,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
+
+  suggestionsContainer: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#eee',
+    marginTop: 2,
+    marginRight: 12,
+    marginBottom: 12,
+    maxHeight: 150, // Limita o tamanho da lista
+  },
+
+  suggestionItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+
+  suggestionText: {
+    color: '#333',
+    fontWeight: '500',
+  },
+
   input: {
     height: 48,
     borderWidth: 1,

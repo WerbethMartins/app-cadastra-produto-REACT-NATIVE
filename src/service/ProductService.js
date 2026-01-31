@@ -20,10 +20,10 @@ export async function getProducts() {
   return result;
 }
 
-export async function createProduct(name, price, quantity, category) {
+export async function createProduct(name, price, quantity, category, branding = '') {
   const db = getDB();
   const user = auth.currentUser;
-  const createdAt = new Date().toISOString(); // Pega a data e hora atual
+  const createdAt = new Date("2026-02-15T10:00:00Z").toISOString(); // Pega a data e hora atual
 
   if(!user){
     Alert.alert("Usuário não identificado!");
@@ -41,8 +41,8 @@ export async function createProduct(name, price, quantity, category) {
 
   try {
     const result = await db.runAsync(
-      'INSERT INTO products (name, price, quantity, category, userId, createdAt) VALUES (?, ?, ?, ?, ?, ?)',
-      [name, numericPrice, numericQuantity, category, userId, createdAt]
+      'INSERT INTO products (name, price, quantity, category, branding, userId, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [name, numericPrice, numericQuantity, category, branding, userId, createdAt]
     );
 
     // DEBUG
@@ -65,7 +65,7 @@ export async function updateProduct(id, name, price, quantity, category) {
   const db = getDB();
   const userId = auth.currentUser?.uid;
   await db.runAsync(
-    'UPDATE products SET name = ?, price = ?, quantity = ?, category = ? WHERE id = ? AND userId = ?',
-    [name, price, quantity, category, id, userId]
+    'UPDATE products SET name = ?, price = ?, quantity = ?, category = ?, branding = ? WHERE id = ? AND userId = ?',
+    [name, price, quantity, category, '', id, userId]
   );
 }

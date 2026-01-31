@@ -138,7 +138,9 @@ const styles = StyleSheet.create({
     boxShadow: '1px 1px 1px rgba(0, 0, 0, 0.3)',
   },  
   productList: {
+    display: 'flex',
     padding: 5,
     width: '100%',
+    maxHeight: 600,
   }
 })

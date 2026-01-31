@@ -110,7 +110,7 @@ export default function Home(products, setProducts) {
                     <View style={styles.actions}>
                     <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Lista de Produtos')}
                     >
-                      <Text style={styles.buttonText}>Entrar</Text>
+                      <Text style={styles.buttonText}>Produtos</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.button} onPress={handleLogout}>
                       <Text style={styles.textLogout}>Sair</Text>

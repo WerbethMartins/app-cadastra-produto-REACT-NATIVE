@@ -1,11 +1,15 @@
 import { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, PanResponder, Image } from 'react-native';
 import { productImages } from '../utils/productImages';
+import { useProduct } from '../context/productContext';
 
 const SCREEN_WIDTH = 400; // Largura aproximada da tela
 const SWIPE_THRESHOLD = -0.25 * SCREEN_WIDTH; // Limite para considerar swipe
 
 export default function ProductCard({ product, onEdit, onDelete }) {
+
+  const {getPriceDifference} = useProduct();
+  const priceStatus = getPriceDifference(product.name, product.price, product.createdAt, product.branding);
 
   const image = productImages[product.category] || productImages.default;
   
@@ -53,6 +57,7 @@ export default function ProductCard({ product, onEdit, onDelete }) {
           }),
         ]).start(() => {
           onDelete(product.id);
+          onEdit();
         });
       } else {
         // Volta para posição original
@@ -120,6 +125,13 @@ export default function ProductCard({ product, onEdit, onDelete }) {
           <View style={styles.titleSection}>
             <Text style={styles.title}>{product.name}</Text>
             <Text style={styles.category}>{`Categoria: ${product.category}`}</Text>
+
+            {/* Exibe a marca apenas se ela existir */}
+            {product.branding ? (
+              <Text style={styles.branding}>{`Marca: ${product.branding}`}</Text>
+            ) : (
+              <Text style={[styles.branding, { fontStyle: 'italic', opacity: 0.5 }]}>Sem marca</Text>
+            )}
           </View>
         </View>
 
@@ -129,6 +141,19 @@ export default function ProductCard({ product, onEdit, onDelete }) {
             <Text style={styles.label}>Preço</Text>
             <Text style={styles.value}>R$ {Number(product.price).toFixed(2)}</Text>
           </View>
+
+          {priceStatus && (
+            <View
+              style={[
+                styles.badge,
+                { backgroundColor: priceStatus.isHigher ? '#ffebee' : '#e8f5e9' }
+              ]}>
+                <Text style={{ color: priceStatus.isHigher ? '#c62828' : '#2e7d32', fontSize: 12 }}>
+                  {priceStatus.isHigher ? '↑' : '↓'} {Math.abs(priceStatus.percentage)}%
+                </Text>
+            </View> 
+          )}
+
           <View style={styles.row}>
             <Text style={styles.label}>Quantidade</Text>
             <Text style={styles.value}>{product.quantity}</Text>
@@ -190,30 +215,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
-  },
-
-  image: {
-    width: 100,
-    height: 80,
-    marginRight: 10,
-    resizeMode: 'contain',
   },
 
   titleSection: {
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    gap: 10,
+    gap: 5,
     width: '65%',
-    padding: 10,
-    marginLeft: 10,
+    marginLeft: 5,
     height: 100,
+  },
+
+  image: {
+    width: 100,
+    height: 100,
+    marginRight: 5,
+    marginBottom: 20,
+    resizeMode: 'contain',
   },
 
   title: {
     textAlign: 'start',
-    borderBottomWidth: 1,
     fontSize: 18,
     fontWeight: '700',
     color: '#1F2937',
@@ -226,7 +249,6 @@ const styles = StyleSheet.create({
   },  
 
   content: {
-    marginVertical: 8,
     gap: 4,
   },
 
@@ -246,6 +268,12 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
 
+  badge: {
+    position: 'absolute',
+    right: 60,
+    bottom: 25,
+  },  
+
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -254,11 +282,11 @@ const styles = StyleSheet.create({
 
   editButton: {
     flex: 1,
-    marginRight: 6,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#E0F2FE',
     alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: '#FEE2E2',
+    paddingVertical: 10,
+    marginRight: 6,
   },
 
   deleteButton: {

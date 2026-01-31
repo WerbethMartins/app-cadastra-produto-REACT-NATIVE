@@ -1,10 +1,37 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, Animated } from 'react-native';
 import { signUp } from '../service/AuthService';
 
 export default function UserAuth({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Referências para a animação
+  const iconRotation = useRef(new Animated.Value(0)).current;
+
+  // Interpolação para transformar 0-1 em 0deg-160deg
+  const spin = iconRotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '160deg'], // Definição de graus
+  });
+
+  // Animação do icone
+  useEffect(() => {
+    Animated.sequence([
+        Animated.timing(iconRotation, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+        }),
+        // Segunda fase: Volta para 0deg
+        Animated.timing(iconRotation, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+        }),
+    ]).start();
+  }, []);
+
 
   const handleCreate = async () => {
     try {
@@ -28,7 +55,16 @@ export default function UserAuth({ navigation }) {
     <View style={styles.container}>
         <View style={styles.form}>
             <View style={styles.header}>
-                    <Text style={styles.title}>Nova Conta</Text>
+                <Animated.View
+                    style={{
+                        transform: [{rotate: spin}], 
+                    }}
+                >
+                    <Image style={styles.image} source={require('../../assets/product-development.png')}/>
+                </Animated.View>
+                <View style={styles.title}>
+                        <Text style={styles.title}>Criar Conta</Text>
+                </View>
             </View>
             <TextInput 
                 style={styles.input} 
@@ -69,10 +105,24 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
 
+    header: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        gap: 15,
+        marginBottom: 20,
+    },  
+    
+    image: {
+        width: 100,
+        height: 100,
+    },  
+
     title: { 
-        fontSize: 22, 
+        fontSize: 25, 
         fontWeight: 'bold', 
-        marginBottom: 20, 
+        marginBottom: 15, 
         textAlign: 'center' },
 
     input: { 

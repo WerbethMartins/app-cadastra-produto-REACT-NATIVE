@@ -22,6 +22,7 @@ export async function initDB() {
         CREATE TABLE IF NOT EXISTS products (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
+          branding  TEXTE NOT NULL,
           price REAL NOT NULL,
           quantity INTEGER NOT NULL,
           category TEXT NOT NULL,
