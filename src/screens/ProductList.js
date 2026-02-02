@@ -4,8 +4,9 @@ import { useProduct } from '../context/productContext';
 // Componentes
 import ProductCard from '../components/productCard';
 import { HeaderSummary } from '../components/HeaderSummary';
-import {monthsNames } from '../components/MonthSelector';
 import { MonthSelector } from '../components/MonthSelector';
+import { useTutorial } from '../hooks/useTutorial';
+import { TutorialOverlay } from '../components/TutorialOverlay';
 
 // React e React Native
 import { FlatList, Button, View, Text, StyleSheet, Image, TouchableOpacity, Animated, ScrollView } from 'react-native';
@@ -13,6 +14,7 @@ import { useState, useRef, useEffect} from 'react';
 
 export default function ProductList() {
   const { filteredProducts,products, selectedMonth,loading, removeProduct } = useProduct();
+  const { isTutorialActive, stepData, startTutorial, nextStep, stopTutorial } = useTutorial();
   const navigation = useNavigation();
 
   // Referências para as animações
@@ -62,7 +64,7 @@ export default function ProductList() {
 
   return (
     <View style={styles.container}>
-
+        {/* Animação do botão de animação/Icone */}
         <View style={styles.navigateButtonSection}>
           <Animated.View
             style={{ 
@@ -84,8 +86,10 @@ export default function ProductList() {
           </Animated.View>
         </View>
 
+        {/* Seletor de meses */}    
         <MonthSelector />
       
+          {/* Lista de produtos */}  
           <View style={styles.productList}>
             <FlatList
               data={filteredProducts}
@@ -106,6 +110,22 @@ export default function ProductList() {
               }
             />
           </View>
+
+          {/* Botão Flutuante de Ajuda */}
+          <TouchableOpacity 
+            style={styles.helpButton}
+            onPress={startTutorial}    
+          >     
+            <Text style={styles.tutorialText}>?</Text>
+          </TouchableOpacity>
+
+          {/* O Componente do Tutorial */}
+          <TutorialOverlay 
+            isVisible={isTutorialActive}
+            stepData={stepData}
+            onNext={nextStep}
+            onClose={stopTutorial}
+          />
       
     </View>
   );
@@ -116,6 +136,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+
   navigateButtonSection: {
     display: 'flex',
     flexDirection: 'row',
@@ -131,16 +152,40 @@ const styles = StyleSheet.create({
     width: '90%',
     boxShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)',
   },
+
   navigateButton: {
     borderRadius: 10,
     backgroundColor: '#06beaf',
     padding: 10,
     boxShadow: '1px 1px 1px rgba(0, 0, 0, 0.3)',
   },  
+
   productList: {
     display: 'flex',
     padding: 5,
     width: '100%',
     maxHeight: 600,
+  },
+
+  helpButton: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 30,
+    backgroundColor: '#06beaf',
+    right: -22,
+    width: 50,
+    bottom: 50,
+    height: 50,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  tutorialText: { 
+    color: 'white', 
+    fontSize: 20, 
+    fontWeight: 'bold',
+    marginRight: 10, 
   }
 })

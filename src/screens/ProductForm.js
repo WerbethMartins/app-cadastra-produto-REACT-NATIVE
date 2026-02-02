@@ -2,6 +2,7 @@ import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } fro
 import { useState } from 'react';
 import { useProduct, uniqueProductNames } from '../context/productContext';
 import { categories } from '../utils/Categories';
+import { useMessage } from '../context/messageContext';
 
 export default function ProductForm({ navigation }) {
   const { addProduct } = useProduct();
@@ -13,6 +14,7 @@ export default function ProductForm({ navigation }) {
   const [openCategories, setOpenCategories] = useState(false);
   const [branding, setBranding] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const [showMessage] = useMessage();
 
   const handleNameChange = (text) => {
     setName(text);
@@ -35,7 +37,7 @@ export default function ProductForm({ navigation }) {
   async function handleSave() {
 
     if (!name || !price || !quantity || !category) {
-      Alert.alert('Erro', 'Preencha todos os campos');
+      showMessage('Preencha todos os campos', 'Erro');
       return;
     }
 
@@ -46,6 +48,8 @@ export default function ProductForm({ navigation }) {
       category ,
       branding.trim()
     );
+  
+    showMessage("produto salvo com sucesso! 🛒", "success");
 
     navigation.goBack();
   }

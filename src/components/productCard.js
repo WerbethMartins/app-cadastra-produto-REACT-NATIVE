@@ -119,6 +119,9 @@ export default function ProductCard({ product, onEdit, onDelete }) {
       >
         {/* Cabeçalho */}
         <View style={styles.header}>
+          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+            <Image style={styles.editeImg} source={require("../../assets/compose.png")} />
+          </TouchableOpacity>
           <View style={styles.imageSection}>
             <Image source={image} style={styles.image} />
           </View>
@@ -162,10 +165,6 @@ export default function ProductCard({ product, onEdit, onDelete }) {
 
         {/* Botões */}
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-            <Text style={styles.buttonText}>✏️ Editar</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteButton}>
             <Text style={styles.buttonText}>🗑️ Excluir</Text>
           </TouchableOpacity>
@@ -217,12 +216,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  editButton: {
+    flex: 1,
+    position: 'absolute',
+    alignItems: 'center',
+    borderRadius: 8,
+    margiroundColor: '#FEE2E2',
+    paddinRight: 6,
+    top: -10,
+    right: -5,
+  },
+
+  editeImg: {
+    width: 25,
+    height: 25,
+    elevation: 4,
+  },  
+
   titleSection: {
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     gap: 5,
     width: '65%',
+    marginTop: 10,
     marginLeft: 5,
     height: 100,
   },
@@ -278,15 +295,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 12,
-  },
-
-  editButton: {
-    flex: 1,
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: '#FEE2E2',
-    paddingVertical: 10,
-    marginRight: 6,
   },
 
   deleteButton: {

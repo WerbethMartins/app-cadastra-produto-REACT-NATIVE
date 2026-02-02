@@ -2,9 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, Animated } from 'react-native';
 import { signUp } from '../service/AuthService';
 
+import { useMessage } from '../context/messageContext';
+
 export default function UserAuth({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [ showMessage ] = useMessage();
 
   // Referências para a animação
   const iconRotation = useRef(new Animated.Value(0)).current;
@@ -36,7 +39,7 @@ export default function UserAuth({ navigation }) {
   const handleCreate = async () => {
     try {
       await signUp(email, password);
-      Alert.alert("Sucesso", "Conta criada com sucesso!");
+      showMessage("Usuário criado com sucesso! ", "success");
       navigation.goBack();
     } catch (error) {
         if(error.code === 'auth/email-already-in-use') {
@@ -45,7 +48,7 @@ export default function UserAuth({ navigation }) {
         }else if(error.code === 'auth/weak-password'){
             Alert.alert("Erro", "A senha deve ter pelo menos 6 caracteres.");
         } else {
-            Alert.alert("Erro", "Ocorreu um erro inesperado.");
+            showMessage("Algo deu errado.", "error");
         }
       Alert.alert("Erro", error.message);
     }
@@ -87,58 +90,58 @@ export default function UserAuth({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    container: { 
-    flex: 1, 
-    justifyContent: 'flex-start', 
-    padding: 20, 
-    backgroundColor: '#fff' },
+container: { 
+flex: 1, 
+justifyContent: 'flex-start', 
+padding: 20, 
+backgroundColor: '#fff' },
 
-    form: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 10,
-        shadowColor: '#ccc',
-        shadowOpacity: 1,
-        elevation: 5,
-    },
+form: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: '#ccc',
+    shadowOpacity: 1,
+    elevation: 5,
+},
 
-    header: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-        gap: 15,
-        marginBottom: 20,
-    },  
-    
-    image: {
-        width: 100,
-        height: 100,
-    },  
+header: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    gap: 15,
+    marginBottom: 20,
+},  
 
-    title: { 
-        fontSize: 25, 
-        fontWeight: 'bold', 
-        marginBottom: 15, 
-        textAlign: 'center' },
+image: {
+    width: 100,
+    height: 100,
+},  
 
-    input: { 
-        borderWidth: 1, 
-        borderColor: '#ddd', 
-        padding: 12, 
-        borderRadius: 8, 
-        marginBottom: 15 },
+title: { 
+    fontSize: 25, 
+    fontWeight: 'bold', 
+    marginBottom: 15, 
+    textAlign: 'center' },
 
-    button: { 
-        backgroundColor: '#06beaf', 
-        padding: 15, 
-        borderRadius: 8, 
-        alignItems: 'center' },
+input: { 
+    borderWidth: 1, 
+    borderColor: '#ddd', 
+    padding: 12, 
+    borderRadius: 8, 
+    marginBottom: 15 },
 
-    buttonText: { 
-        color: '#fff', 
-        fontWeight: 'bold' }
+button: { 
+    backgroundColor: '#06beaf', 
+    padding: 15, 
+    borderRadius: 8, 
+    alignItems: 'center' },
+
+buttonText: { 
+    color: '#fff', 
+    fontWeight: 'bold' }
 });

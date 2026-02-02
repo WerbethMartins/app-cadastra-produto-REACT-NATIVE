@@ -23,7 +23,7 @@ export async function getProducts() {
 export async function createProduct(name, price, quantity, category, branding = '') {
   const db = getDB();
   const user = auth.currentUser;
-  const createdAt = new Date("2026-02-15T10:00:00Z").toISOString(); // Pega a data e hora atual
+  const createdAt = new Date().toISOString(); // Pega a data e hora atual
 
   if(!user){
     Alert.alert("Usuário não identificado!");

@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { signIn } from '../service/AuthService';
+import { useMessage } from '../context/messageContext';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [showMessage] = useMessage();
 
   const handleLogin = async () => {
     try {
         await signIn(email, password);
-        setMessage("Login bem-sucedido!");
+        showMessage("Login bem-sucedido!", "success");
         navigation.replace('Home'); 
     } catch (error) {
-        setMessage("Falha no login. Verifique suas credenciais.");
-        if (error.code === 'auth/invalid-credential') setMessage("E-mail ou senha incorretos.");
-        if (error.code === 'auth/invalid-email') setMessage("E-mail inválido.");
+        showMessage("Falha no login. Verifique suas credenciais.", "error");
+        if (error.code === 'auth/invalid-credential') showMessage("E-mail ou senha incorretos.", "error");
+        if (error.code === 'auth/invalid-email') showMessage("E-mail inválido.", "error");
       
         Alert.alert('Erro de Login', message);
     }

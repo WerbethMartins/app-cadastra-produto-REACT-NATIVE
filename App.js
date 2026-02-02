@@ -5,6 +5,7 @@ import app from './src/configuracao/firebaseConfig';
 import { initDB } from './src/database/db';
 import { useEffect, useState } from 'react';
 import { ProductProvider } from './src/context/productContext';
+import { MessageProvider } from './src/context/messageContext';
 
 const auth = getAuth(app);
 
@@ -26,11 +27,13 @@ export default function App() {
   if (initializing) return null;
   
   return (
-    <ProductProvider  >
-      <NavigationContainer>
-        {/* Se existir 'user', mostra as telas do App. Se não, mostra Login */}
-        { user ?  <AppNavigator /> : <AppNavigator /> }
-      </NavigationContainer>
+    <MessageProvider>
+      <ProductProvider  >
+        <NavigationContainer>
+          {/* Se existir 'user', mostra as telas do App. Se não, mostra Login */}
+          { user ?  <AppNavigator /> : <AppNavigator /> }
+        </NavigationContainer>
     </ProductProvider>
+    </MessageProvider>
   );
 }
