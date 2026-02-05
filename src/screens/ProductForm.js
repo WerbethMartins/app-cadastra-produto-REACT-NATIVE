@@ -14,7 +14,7 @@ export default function ProductForm({ navigation }) {
   const [openCategories, setOpenCategories] = useState(false);
   const [branding, setBranding] = useState('');
   const [suggestions, setSuggestions] = useState([]);
-  const [showMessage] = useMessage();
+  const {showMessage} = useMessage();
 
   const handleNameChange = (text) => {
     setName(text);

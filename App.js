@@ -28,12 +28,12 @@ export default function App() {
   
   return (
     <MessageProvider>
-      <ProductProvider  >
-        <NavigationContainer>
-          {/* Se existir 'user', mostra as telas do App. Se não, mostra Login */}
-          { user ?  <AppNavigator /> : <AppNavigator /> }
-        </NavigationContainer>
-    </ProductProvider>
+        <ProductProvider  >
+          <NavigationContainer>
+            {/* Se existir 'user', mostra as telas do App. Se não, mostra Login */}
+            { user ?  <AppNavigator /> : <AppNavigator /> }
+          </NavigationContainer>
+      </ProductProvider>
     </MessageProvider>
   );
 }

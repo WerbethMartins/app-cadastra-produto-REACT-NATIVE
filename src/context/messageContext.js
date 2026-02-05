@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext } from 'react';
 import { Modal, View, Text, StyleSheet, Animated } from 'react-native';
 
 const MessageContext = createContext();
@@ -8,7 +8,7 @@ export function MessageProvider({ children }) {
   const [message, setMessage] = useState('');
   const [type, setType] = useState('success'); // 'success' ou 'error'
 
-  const showMessage = (text, messageType = 'success', duration = 3000) => {
+  const showMessage = (text, messageType = 'success', duration = 2000) => {
     setMessage(text);
     setType(messageType);
     setVisible(true);

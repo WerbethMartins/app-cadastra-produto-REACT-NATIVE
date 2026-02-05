@@ -5,8 +5,11 @@ import { useProduct } from '../context/productContext';
 import ProductCard from '../components/productCard';
 import { HeaderSummary } from '../components/HeaderSummary';
 import { MonthSelector } from '../components/MonthSelector';
-import { useTutorial } from '../hooks/useTutorial';
 import { TutorialOverlay } from '../components/TutorialOverlay';
+import { HelpMenu } from '../components/helpMenu';
+
+// Hooks
+import { useTutorial } from '../hooks/useTutorial';
 
 // React e React Native
 import { FlatList, Button, View, Text, StyleSheet, Image, TouchableOpacity, Animated, ScrollView } from 'react-native';
@@ -16,6 +19,7 @@ export default function ProductList() {
   const { filteredProducts,products, selectedMonth,loading, removeProduct } = useProduct();
   const { isTutorialActive, stepData, startTutorial, nextStep, stopTutorial } = useTutorial();
   const navigation = useNavigation();
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   // Referências para as animações
   const buttonOpacity = useRef(new Animated.Value(0)).current;
@@ -114,12 +118,19 @@ export default function ProductList() {
           {/* Botão Flutuante de Ajuda */}
           <TouchableOpacity 
             style={styles.helpButton}
-            onPress={startTutorial}    
+            onPress={(() => setIsMenuVisible(true))}    
           >     
             <Text style={styles.tutorialText}>?</Text>
           </TouchableOpacity>
 
-          {/* O Componente do Tutorial */}
+          {/* Componente do menu */}
+          <HelpMenu 
+            isVisible={isMenuVisible} 
+            onClose={() => setIsMenuVisible(false)}
+            onStartTutorial={startTutorial}
+          />
+
+          {/* Componente do Tutorial */}
           <TutorialOverlay 
             isVisible={isTutorialActive}
             stepData={stepData}

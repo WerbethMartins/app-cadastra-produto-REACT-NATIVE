@@ -6,7 +6,7 @@ import { useMessage } from '../context/messageContext';
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showMessage] = useMessage();
+  const {showMessage} = useMessage();
 
   const handleLogin = async () => {
     try {

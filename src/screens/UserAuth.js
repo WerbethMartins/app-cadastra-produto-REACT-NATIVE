@@ -7,7 +7,7 @@ import { useMessage } from '../context/messageContext';
 export default function UserAuth({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [ showMessage ] = useMessage();
+  const { showMessage } = useMessage();
 
   // Referências para a animação
   const iconRotation = useRef(new Animated.Value(0)).current;
