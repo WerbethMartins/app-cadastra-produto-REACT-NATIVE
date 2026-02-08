@@ -30,7 +30,7 @@ Um aplicativo mobile moderno para gerenciamento de estoque e produtos, desenvolv
 
 1. **Clone o repositório:**
    ```bash
-   git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
+   git clone [https://github.com/WerbethMartins/app-cadastra-produto-REACT-NATIVE]
 
 2. **Instale as dependências:**
 
