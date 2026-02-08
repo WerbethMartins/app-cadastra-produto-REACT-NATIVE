@@ -49,9 +49,9 @@ export default function Login({ navigation }) {
                     style={styles.inputPassword} 
                     placeholder="Senha" 
                     placeholderTextColor={"#000"}
+                    underlineColorAndroid="transparent"
                     value={password}
                     onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
                 />
 
                 {/* Ícone para mostrar a senha */}

@@ -106,7 +106,9 @@ export default function ProductForm({ navigation, route }) {
           style={styles.input}
           value={name}
           placeholder="Ex: Arroz Branco"
+          placeholderTextColor={'#000'}
           onChangeText={handleNameChange}
+          underlineColorAndroid="transparent"
         />
 
         {/* Lista de sugestões */}
@@ -128,18 +130,22 @@ export default function ProductForm({ navigation, route }) {
           style={styles.input}
           value={branding}
           placeholder='Marca do Produto'
+          placeholderTextColor={'#000'}
           onChangeText={setBranding}
+          underlineColorAndroid="transparent"
         />
 
         <TextInput
           style={styles.input}
           placeholder="Preço"
+          placeholderTextColor={'#000'}
           keyboardType="numeric"
           onChangeText={setPrice}
         />
         <TextInput
           style={styles.input}
           placeholder="Quantidade"
+          placeholderTextColor={'#000'}
           keyboardType="numeric"
           onChangeText={setQuantity}
         />
