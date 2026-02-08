@@ -61,7 +61,7 @@ export default function ProductList() {
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Inicializando banco...</Text>
+        <Text>Sincronizando dados...</Text>
       </View>
     );
   }
@@ -97,7 +97,7 @@ export default function ProductList() {
           <View style={styles.productList}>
             <FlatList
               data={filteredProducts}
-              keyExtractor={item => item.id.toString()}
+              keyExtractor={item => item.id}
               contentContainerStyle={{ paddingBottom: 20 }}
               ListHeaderComponent={<HeaderSummary />} /* Ele aparece no topo */
               renderItem={({ item }) => (

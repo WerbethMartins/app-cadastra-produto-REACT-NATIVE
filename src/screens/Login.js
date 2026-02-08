@@ -3,9 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } fro
 import { signIn } from '../service/AuthService';
 import { useMessage } from '../context/messageContext';
 
+// Pacote Expo
+import { Ionicons } from '@expo/vector-icons';
+
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const {showMessage} = useMessage();
 
   const handleLogin = async () => {
@@ -29,22 +33,39 @@ export default function Login({ navigation }) {
                 <Image  style={styles.image} source={require('../../assets/product-development.png')} />
                 <Text style={styles.title}>Entrar no App</Text>
             </View>
-            
+
             <TextInput 
                 style={styles.input} 
                 placeholder="E-mail" 
+                placeholderTextColor={"#000"}
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
+                underlineColorAndroid="transparent"
             />
             
-            <TextInput 
-                style={styles.input} 
-                placeholder="Senha" 
-                secureTextEntry 
-                value={password}
-                onChangeText={setPassword}
-            />
+            <View style={styles.passwordContainer}>
+                <TextInput 
+                    style={styles.inputPassword} 
+                    placeholder="Senha" 
+                    placeholderTextColor={"#000"}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                />
+
+                {/* Ícone para mostrar a senha */}
+                <TouchableOpacity 
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.iconStyle}
+                    >
+                        <Ionicons 
+                            name={showPassword ? "eye-off" : "eye"} 
+                            size={24} 
+                            color="#888" 
+                        />
+                </TouchableOpacity>
+            </View>
 
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
                 <Text style={styles.buttonText}>Entrar</Text>
@@ -103,11 +124,32 @@ const styles = StyleSheet.create({
         marginBottom: 15 
     },
 
-  button: { 
-    backgroundColor: '#06beaf', 
-    padding: 18, 
-    borderRadius: 8, 
-    alignItems: 'center' },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        marginBottom: 15,
+    },  
+
+    inputPassword: {
+        flex: 1,
+        paddingVertical: 15,
+    },
+    
+    iconStyle: {
+        padding: 5,
+    },  
+
+    button: { 
+        backgroundColor: '#06beaf', 
+        padding: 18, 
+        borderRadius: 8, 
+        alignItems: 'center' 
+    },
+
   buttonText: { 
     color: '#fff', 
     fontWeight: 'bold', 

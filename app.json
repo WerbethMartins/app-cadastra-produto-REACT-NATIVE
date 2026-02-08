@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "product-app",
-    "slug": "product-app",
+    "name": "Product App",
+    "slug": "app-cadastra-produto",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Icone-App.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -12,21 +12,37 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/Icone-App.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.werbeth.appcadastraproduto"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "extra": {
+      "eas": {
+        "projectId": "370545d4-8222-4246-9da7-2ad733b9870f"
+      }
+    },
     "plugins": [
       "expo-sqlite"
-    ]
+    ],
+    "owner": "werbeth",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/370545d4-8222-4246-9da7-2ad733b9870f"
+    }
   }
 }

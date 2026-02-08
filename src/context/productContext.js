@@ -1,14 +1,20 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { auth } from '../service/AuthService';
+
+//Importações firebase
+import { db, auth } from '../configuracao/firebaseConfig'; 
+import { 
+  collection, 
+  query, 
+  orderBy, 
+  onSnapshot, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  serverTimestamp 
+} from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { initDB } from '../database/db';
-import { set } from 'firebase/database';
-import {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} from '../service/ProductService';
+
 
 const ProductContext = createContext();
 
@@ -19,7 +25,52 @@ export function ProductProvider({ children }) {
   const [totalItems, setTotalItems] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Mês atual
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Ano atual
+
+  // Nomes únicos para o Autocomplete
   const uniqueProductNames = [...new Set(products.map(p => p.name))].sort();
+
+  // Monitorar usuário e sincronizar  com Firebase
+  useEffect(() => {
+    let unsubscribeSnapshot = null;
+
+    // 1. Monitorar o Auth (Sintaxe Web)
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setLoading(true);
+        
+        // 2. Referência da coleção no padrão Web
+        const colRef = collection(db, 'users', user.uid, 'products');
+        const q = query(colRef, orderBy('createdAt', 'desc'));
+
+        unsubscribeSnapshot = onSnapshot(q, (querySnapshot) => {
+          const list = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            list.push({
+              ...data,
+              id: doc.id,
+              // Converte Timestamp para Date
+              createdAt: data.createdAt?.toDate() || new Date(), 
+            });
+          });
+          setProducts(list);
+          setLoading(false);
+        }, (error) => {
+          console.error("Erro no Firestore:", error);
+          setLoading(false);
+        });
+      } else {
+        setProducts([]);
+        setLoading(false);
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+    };
+  }, []);
 
   // Função para calcular a diferença de preço de um produto específico
   const getPriceDifference = (productName, currentPrice, currentDate, productBranding) => {
@@ -50,7 +101,7 @@ export function ProductProvider({ children }) {
   // Filtrar os produtos pelo mês selecionado
   const filteredProducts = products.filter(product => {
     if (!product.createdAt) return false;
-    const date = new Date(product.createdAt);
+    const date =  product.createdAt;
     // LOG DE SEGURANÇA
     // console.log(`Comparando: ${date.getMonth()} vs ${selectedMonth} | ${date.getFullYear()} vs ${selectedYear}`);
     return (
@@ -65,30 +116,34 @@ export function ProductProvider({ children }) {
     return `${d.getMonth()}-${d.getFullYear()}`;
   }))]
 
-  const user = auth.currentUser;
-
-  async function loadProducts() {
-    if(user){
-      const data = await getProducts();
-      setProducts(data);
-    }else {
-      setProducts([]); // Limpa a lista se o usuário sair
-    }
-  }
-
+  // Funções CRUD
   async function addProduct(name, price, quantity, category, branding = '') {
-    await createProduct(name, price, quantity, category, branding);
-    await loadProducts();
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const colRef = collection(db, 'users', user.uid, 'products');
+    await addDoc(colRef, {
+      name, price, quantity, category, branding,
+      createdAt: serverTimestamp()
+    });
   }
 
   async function editProduct(id, name, price, quantity, category, branding = '') {
-    await updateProduct(id, name, price, quantity, category, branding);
-    await loadProducts();
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const docRef = doc(db, 'users', user.uid, 'products', id);
+    await updateDoc(docRef, {
+      name, price, quantity, category, branding
+    });
   }
 
   async function removeProduct(id) {
-    await deleteProduct(id);
-    await loadProducts();
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const docRef = doc(db, 'users', user.uid, 'products', id);
+    await deleteDoc(docRef);
   }
 
   // Função para calcular os totais baseado no array de products
@@ -96,43 +151,11 @@ export function ProductProvider({ children }) {
     const total = filteredProducts.reduce((acc, obj) => {
       return acc + (obj.price * obj.quantity);
     }, 0);
-
     setTotalValue(total);
     setTotalItems(filteredProducts.length);
   }, [filteredProducts]); // Sempre que a lista de products mudar, ele recalcula.
 
-  // Monitorar a troca de usuário
-  useEffect(() => {
-    let isMounted = true;
-
-    // 2. Monitorar a troca de usuários
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setLoading(true);
-      try {
-        await initDB();
-        //console.log("🟢 Banco iniciado!");
-        if (user) {
-          //console.log(`👤 Usuário logado: ${user.uid}`);
-          const data = await getProducts();
-          if (isMounted) setProducts(data);
-        } else {
-          // console.log('🚪 Usuário deslogado');
-          if (isMounted) setProducts([]);
-        }
-      } catch (error) {
-        console.error('Erro no fluxo do Context:', error);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    });
-
-    return () => {
-      isMounted = false;
-      unsubscribe();
-    };
-  }, []);
-
-
+  
   return (
     <ProductContext.Provider
       value={{

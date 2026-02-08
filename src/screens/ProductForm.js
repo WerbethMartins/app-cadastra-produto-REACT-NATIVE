@@ -1,10 +1,17 @@
+// Importação do elementos React-native
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { useState } from 'react';
+
+// Importação do elementos
 import { useProduct, uniqueProductNames } from '../context/productContext';
 import { categories } from '../utils/Categories';
 import { useMessage } from '../context/messageContext';
 
-export default function ProductForm({ navigation }) {
+export default function ProductForm({ navigation, route }) {
+
+  // Verifica se está no modo de edição
+  const editingProduct = route.params?.product;
+
   const { addProduct } = useProduct();
   const {uniqueProductNames} = useProduct();
   const [name, setName] = useState('');
@@ -36,23 +43,29 @@ export default function ProductForm({ navigation }) {
 
   async function handleSave() {
 
-    if (!name || !price || !quantity || !category) {
-      showMessage('Preencha todos os campos', 'Erro');
+    if(!name || !price){
+      showMessage("Preencha o nome e o preço!", "error");
       return;
     }
 
-    await addProduct(
-      name.trim(),
-      Number(price.replace(',', '.')),
-      Number(quantity),
-      category ,
-      branding.trim()
-    );
-  
-    showMessage("produto salvo com sucesso! 🛒", "success");
+    try {
+        const priceNum = parseFloat(price.toString().replace(',', '.'));
+        const qtyNum = parseInt(quantity) || 1; // Garante pelo menos um item
 
-    navigation.goBack();
-  }
+        if (editingProduct) {
+          // Se existe o produto na rota, será usado a função de editar
+          await editProduct(editingProduct.id, name, priceNum, qtyNum, category, branding);
+        } else {
+          // Caso contrário, será adicionado um novo
+          await addProduct(name, priceNum, qtyNum, category, branding);
+        }
+
+        navigation.goBack(); // Volta para a lista após salvar
+      } catch (error) {
+        console.error("Erro ao salvar produto:", error);
+        Alert.alert("Erro", "Não foi possível salvar o produto.");
+      }
+    }
 
   return (
     <View style={styles.container}>

@@ -2,11 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, Animated } from 'react-native';
 import { signUp } from '../service/AuthService';
 
+// Import Context
 import { useMessage } from '../context/messageContext';
+
+//Pacote Expo
+import { Ionicons } from '@expo/vector-icons';
 
 export default function UserAuth({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { showMessage } = useMessage();
 
   // Referências para a animação
@@ -72,15 +77,33 @@ export default function UserAuth({ navigation }) {
             <TextInput 
                 style={styles.input} 
                 placeholder="E-mail" 
+                placeholderTextColor={'#000'}
                 onChangeText={setEmail}
                 autoCapitalize="none"
+                underlineColorAndroid="transparent"
             />
-            <TextInput 
-                style={styles.input} 
-                placeholder="Senha" 
-                secureTextEntry 
-                onChangeText={setPassword} 
-            />
+            <View style={styles.passwordContainer}>
+                <TextInput 
+                    style={styles.inputPassword} 
+                    placeholder="Senha"
+                    placeholderTextColor={'#000'} 
+                    secureTextEntry={!showPassword} 
+                    onChangeText={setPassword}
+                    underlineColorAndroid="transparent" 
+                />
+
+                {/* Ícone para mostrar a senha */}
+                <TouchableOpacity 
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.iconStyle}
+                >
+                    <Ionicons 
+                        name={showPassword ? 'eye-off' : 'eye'}
+                        size={24}
+                        color={"#888"}
+                    />
+                </TouchableOpacity>
+            </View>
             <TouchableOpacity style={styles.button} onPress={handleCreate}>
                 <Text style={styles.buttonText}>Criar Usuário</Text>
             </TouchableOpacity>
@@ -90,58 +113,78 @@ export default function UserAuth({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-container: { 
-flex: 1, 
-justifyContent: 'flex-start', 
-padding: 20, 
-backgroundColor: '#fff' },
+    container: { 
+        flex: 1, 
+        justifyContent: 'flex-start', 
+        padding: 20, 
+        backgroundColor: '#fff' },
 
-form: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 10,
-    shadowColor: '#ccc',
-    shadowOpacity: 1,
-    elevation: 5,
-},
+    form: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderRadius: 10,
+        padding: 10,
+        paddingVertical: 20,
+    },
 
-header: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    gap: 15,
-    marginBottom: 20,
-},  
+    header: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        gap: 15,
+        marginBottom: 20,
+    },  
 
-image: {
-    width: 100,
-    height: 100,
-},  
+    image: {
+        width: 100,
+        height: 100,
+    },  
 
-title: { 
-    fontSize: 25, 
-    fontWeight: 'bold', 
-    marginBottom: 15, 
-    textAlign: 'center' },
+    title: { 
+        fontSize: 25, 
+        fontWeight: 'bold', 
+        marginBottom: 15, 
+        textAlign: 'center' },
 
-input: { 
-    borderWidth: 1, 
-    borderColor: '#ddd', 
-    padding: 12, 
-    borderRadius: 8, 
-    marginBottom: 15 },
+    input: { 
+        borderWidth: 1, 
+        borderColor: '#ddd', 
+        padding: 12, 
+        borderRadius: 8, 
+        marginBottom: 15 
+    },
 
-button: { 
-    backgroundColor: '#06beaf', 
-    padding: 15, 
-    borderRadius: 8, 
-    alignItems: 'center' },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        marginBottom: 15,
+    },
 
-buttonText: { 
-    color: '#fff', 
-    fontWeight: 'bold' }
+    inputPassword: {
+        flex: 1,
+        paddingVertical: 15,
+    },
+    
+    iconStyle: {
+        padding: 5,
+    },  
+
+    button: { 
+        backgroundColor: '#06beaf', 
+        padding: 15, 
+        borderRadius: 8, 
+        alignItems: 'center' 
+    },
+
+    buttonText: { 
+        color: '#fff', 
+        fontWeight: 'bold' 
+    }
 });
