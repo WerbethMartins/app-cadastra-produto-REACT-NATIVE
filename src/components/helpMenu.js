@@ -1,25 +1,54 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native';
+
+// Import dos context
 import { useMessage } from '../context/messageContext';
+import { useProduct } from '../context/productContext';
 
-export function HelpMenu({ isVisible, onClose, onStartTutorial }){
+// Import dos arquivos do banco de dados
+import { auth } from '../service/AuthService';
+import { db } from '../configuracao/firebaseConfig';
+import { collection, addDoc } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
 
+export function HelpMenu({ isVisible, onClose, onStartTutorial}){
+    const navigation = useNavigation();
     const [showSuggestionForm, setShowSuggestionForm] = useState(false);
     const [suggestion, setSuggestion] = useState('');
     const { showMessage } = useMessage();
+    const { isAdmin } = useProduct();
+    console.log("O usuário é admin? ", isAdmin);
     
-    const handleSendSuggestion = () => {
+    const handleSendSuggestion = async () => {
+        const user = auth.currentUser;
+
+        if (!user) {
+            showMessage("Você precisa estar logado!", "error");
+            return;
+        }
+
         if(suggestion.trim().length < 5){
             showMessage("Por favor, escreva um pouco mais.", "error");
             return;
         }
 
-        console.log("Sugestão enviada: ", suggestion);
+        try {
+            // ENVIANDO PARA O FIREBASE
+            await addDoc(collection(db, 'suggestions'), {
+                userId: user.uid,
+                userEmail: user.email,
+                message: suggestion,
+                createdAt: new Date(),
+            });
 
-        showMessage("Obrigado! Sugestão enviada do sucesso. ✨");
-        setSuggestion('');
-        setShowSuggestionForm(false);
-        onClose();
+            showMessage("Obrigado! Sugestão enviada com sucesso. ✨");
+            setSuggestion('');
+            setShowSuggestionForm(false);
+            onClose();
+        } catch (error) {
+            console.error("Erro ao enviar sugestão:", error);
+            showMessage("Erro ao enviar. Tente novamente.", "error");
+        }
     }
 
     return (
@@ -36,6 +65,16 @@ export function HelpMenu({ isVisible, onClose, onStartTutorial }){
                         <Text style={styles.buttonText}>📝 Deixar Sugestão</Text>
                     </TouchableOpacity>
 
+                    {/* APENAS PARA ADMIN */}
+                    {isAdmin && (
+                        <TouchableOpacity style={styles.navButton} onPress={() =>{
+                            onClose();
+                            navigation.navigate('Mensagens de Sugestão');
+                        }}>
+                                <Text style={styles.buttonText}>📩 Mensagens de Sugestão</Text>
+                        </TouchableOpacity>
+                    )}
+                    
                     <TouchableOpacity style={styles.navButton} onPress={() => {
                         onClose();
                         // Um tempo para fechar totalmente o modal anterior

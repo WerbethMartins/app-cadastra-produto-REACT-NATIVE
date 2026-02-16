@@ -7,6 +7,7 @@ import Login from '../screens/Login';
 import ProductList from '../screens/ProductList';
 import ProductForm from '../screens/ProductForm';
 import ProductEdit from '../screens/ProductEdit';
+import AdminMessages from '../screens/AdminMessages';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,6 +55,10 @@ export default function AppNavigator() {
       <Stack.Screen 
         name="Editar" 
         component={ProductEdit} 
+      />
+      <Stack.Screen 
+        name='Mensagens de Sugestão'
+        component={AdminMessages}
       />
     </Stack.Navigator>
   );

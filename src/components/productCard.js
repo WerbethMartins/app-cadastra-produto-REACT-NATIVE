@@ -91,7 +91,6 @@ export default function ProductCard({ product, onEdit, onDelete }) {
       { 
         opacity,
         transform: [{ 
-          // Corrija esse código, chat
           scaleY: scaleY.interpolate({
             inputRange: [0, 80],
             outputRange: [0, 1],

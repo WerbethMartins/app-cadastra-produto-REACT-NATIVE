@@ -2,9 +2,13 @@ import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity, Animated }
 import { useEffect, useRef, useState } from 'react';
 import { useProduct } from '../context/productContext';
 
+import { auth } from '../service/AuthService';
+import { useMessage } from '../context/messageContext';
+
 export default function ProductEdit({ route, navigation }) {
   const { product } = route.params;
   const { editProduct } = useProduct();
+  const {showMessage} = useMessage();
 
   // Estados 
   const [name, setName] = useState(product.name);
@@ -12,14 +16,17 @@ export default function ProductEdit({ route, navigation }) {
   const [quantity, setQuantity] = useState(String(product.quantity));
 
   async function handleUpdate() {
-    await editProduct(
-      product.id,
-      name,
-      Number(price),
-      Number(quantity)
-    );
+    try {
+  
+      await editProduct(product.id, name, price, quantity);
 
-    navigation.goBack();
+      console.log("Produto editado com sucesso!");
+      showMessage("Produto atualizado!", "success");
+      navigation.goBack(); // Volta para a lista
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+      alert("Erro ao atualizar o produto.");
+    }
   }
 
   return (

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, Animated } from 'react-native';
+import { TextInput as PaperInput } from 'react-native-paper';
 import { signUp } from '../service/AuthService';
 
 // Import Context
@@ -48,10 +49,10 @@ export default function UserAuth({ navigation }) {
       navigation.goBack();
     } catch (error) {
         if(error.code === 'auth/email-already-in-use') {
-            Alert.alert("Erro", "Este e-mail já está em uso.");
+            showMessage("Esse email já está em uso", "error")
             return;
         }else if(error.code === 'auth/weak-password'){
-            Alert.alert("Erro", "A senha deve ter pelo menos 6 caracteres.");
+            showMessage("A senha deve ter pelo menos 6 caracteres.");
         } else {
             showMessage("Algo deu errado.", "error");
         }
@@ -74,7 +75,7 @@ export default function UserAuth({ navigation }) {
                         <Text style={styles.title}>Criar Conta</Text>
                 </View>
             </View>
-            <TextInput 
+            <PaperInput 
                 style={styles.input} 
                 placeholder="E-mail" 
                 placeholderTextColor={'#000'}
@@ -83,26 +84,21 @@ export default function UserAuth({ navigation }) {
                 underlineColorAndroid="transparent"
             />
             <View style={styles.passwordContainer}>
-                <TextInput 
+                <PaperInput 
                     style={styles.inputPassword} 
+                    value={password}
                     placeholder="Senha"
                     placeholderTextColor={'#000'} 
                     secureTextEntry={!showPassword} 
                     onChangeText={setPassword}
-                    underlineColorAndroid="transparent" 
+                    autoCapitalize="none"  
+                    right={
+                        <PaperInput.Icon
+                        icon={showPassword ? "eye-off" : "eye"}
+                        onPress={() => setShowPassword(!showPassword)}
+                        />
+                    }
                 />
-
-                {/* Ícone para mostrar a senha */}
-                <TouchableOpacity 
-                    onPress={() => setShowPassword(!showPassword)}
-                    style={styles.iconStyle}
-                >
-                    <Ionicons 
-                        name={showPassword ? 'eye-off' : 'eye'}
-                        size={24}
-                        color={"#888"}
-                    />
-                </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.button} onPress={handleCreate}>
                 <Text style={styles.buttonText}>Criar Usuário</Text>
@@ -150,9 +146,9 @@ const styles = StyleSheet.create({
         textAlign: 'center' },
 
     input: { 
+        color: '#000',
         borderWidth: 1, 
         borderColor: '#ddd', 
-        padding: 12, 
         borderRadius: 8, 
         marginBottom: 15 
     },
@@ -160,16 +156,15 @@ const styles = StyleSheet.create({
     passwordContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#ccc',
         borderRadius: 8,
-        paddingHorizontal: 10,
         marginBottom: 15,
     },
 
     inputPassword: {
         flex: 1,
-        paddingVertical: 15,
+        color: '#000',
+        borderWidth: 1, 
+        borderColor: '#ddd', 
     },
     
     iconStyle: {

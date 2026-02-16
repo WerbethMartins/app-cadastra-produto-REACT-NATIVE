@@ -40,15 +40,15 @@ export const useMessage = () => useContext(MessageContext);
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingBottom: 50,
+    marginTop: 25,
     backgroundColor: 'transparent',
   },
   
   container: {
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 25,
     minWidth: '80%',
     alignItems: 'center',

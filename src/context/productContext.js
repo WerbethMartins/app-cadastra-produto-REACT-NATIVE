@@ -11,6 +11,7 @@ import {
   updateDoc, 
   deleteDoc, 
   doc, 
+  getDoc,
   serverTimestamp 
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -25,6 +26,7 @@ export function ProductProvider({ children }) {
   const [totalItems, setTotalItems] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Mês atual
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Ano atual
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Nomes únicos para o Autocomplete
   const uniqueProductNames = [...new Set(products.map(p => p.name))].sort();
@@ -33,34 +35,51 @@ export function ProductProvider({ children }) {
   useEffect(() => {
     let unsubscribeSnapshot = null;
 
-    // 1. Monitorar o Auth (Sintaxe Web)
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setLoading(true);
-        
-        // 2. Referência da coleção no padrão Web
-        const colRef = collection(db, 'users', user.uid, 'products');
-        const q = query(colRef, orderBy('createdAt', 'desc'));
+        //  console.log("Meu UID atual:", user.uid);
+        try {
+          // Verificar se o usuário é Admin 
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            console.log("Dados vindos do banco:", userDocSnap.data()); setIsAdmin(userDocSnap.data().role === 'admin');
+          } else {
+            setIsAdmin(false);
+          }
+          // --------------------------------------------
 
-        unsubscribeSnapshot = onSnapshot(q, (querySnapshot) => {
-          const list = [];
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            list.push({
-              ...data,
-              id: doc.id,
-              // Converte Timestamp para Date
-              createdAt: data.createdAt?.toDate() || new Date(), 
+          // Monitorar os Produtos
+          const colRef = collection(db, 'users', user.uid, 'products');
+          const q = query(colRef, orderBy('createdAt', 'desc'));
+
+          unsubscribeSnapshot = onSnapshot(q, (querySnapshot) => {
+            const list = [];
+            querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              list.push({
+                ...data,
+                id: doc.id,
+                createdAt: data.createdAt?.toDate() || new Date(), 
+              });
             });
+            setProducts(list);
+            setLoading(false);
+          }, (error) => {
+            console.error("Erro no Firestore Snapshot:", error);
+            setLoading(false);
           });
-          setProducts(list);
+
+        } catch (error) {
+          console.error("Erro ao carregar dados do usuário:", error);
           setLoading(false);
-        }, (error) => {
-          console.error("Erro no Firestore:", error);
-          setLoading(false);
-        });
+        }
       } else {
         setProducts([]);
+        setIsAdmin(false); // Reset ao deslogar
         setLoading(false);
         if (unsubscribeSnapshot) unsubscribeSnapshot();
       }
@@ -129,12 +148,13 @@ export function ProductProvider({ children }) {
   }
 
   async function editProduct(id, name, price, quantity, category, branding = '') {
+    console.log("Tentando editar o produto com ID:", id);
     const user = auth.currentUser;
     if (!user) return;
 
     const docRef = doc(db, 'users', user.uid, 'products', id);
     await updateDoc(docRef, {
-      name, price, quantity, category, branding
+      name, price, quantity
     });
   }
 
@@ -161,6 +181,7 @@ export function ProductProvider({ children }) {
       value={{
         products,
         loading,
+        isAdmin,
         totalValue,
         totalItems,
         filteredProducts,

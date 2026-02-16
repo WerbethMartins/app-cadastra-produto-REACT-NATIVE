@@ -1,13 +1,28 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import app from '../configuracao/firebaseConfig';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+
 
 export const auth = getAuth(app);
+const db = getFirestore(app);
 
 export async function signUp(email, password) {
   try {
+    // Cria o usuário firebase Auth
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
+    const user = userCredential.user;
+
+    // Cria o documento do usuário no Firestore com a role 'user'
+    // Foi usado o UID do Auth como ID do documento para ficarem vinculados
+    await setDoc(doc(db, 'users', user.uid), {
+      email: email,
+      role: 'user',
+      createdAt: new Date()
+    })
+
+    return user;
   } catch (error) {
+    console.error("Erro no cadastro", error);
     throw error; 
   }
 };

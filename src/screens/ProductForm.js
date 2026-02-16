@@ -10,9 +10,9 @@ import { useMessage } from '../context/messageContext';
 export default function ProductForm({ navigation, route }) {
 
   // Verifica se está no modo de edição
-  const editingProduct = route.params?.product;
+  const productToEdit = route.params?.product;
 
-  const { addProduct } = useProduct();
+  const { addProduct, editProduct } = useProduct();
   const {uniqueProductNames} = useProduct();
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -52,12 +52,13 @@ export default function ProductForm({ navigation, route }) {
         const priceNum = parseFloat(price.toString().replace(',', '.'));
         const qtyNum = parseInt(quantity) || 1; // Garante pelo menos um item
 
-        if (editingProduct) {
+        if (productToEdit) {
           // Se existe o produto na rota, será usado a função de editar
-          await editProduct(editingProduct.id, name, priceNum, qtyNum, category, branding);
+          await editProduct(editProduct.id, name, priceNum, qtyNum);
         } else {
           // Caso contrário, será adicionado um novo
           await addProduct(name, priceNum, qtyNum, category, branding);
+          showMessage("Produto adicionado a lista!", "success");
         }
 
         navigation.goBack(); // Volta para a lista após salvar
@@ -256,6 +257,7 @@ const styles = StyleSheet.create({
 
   input: {
     height: 48,
+    color: '#000',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,

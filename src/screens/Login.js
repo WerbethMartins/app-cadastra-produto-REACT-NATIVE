@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { TextInput as PaperInput } from 'react-native-paper';
 import { signIn } from '../service/AuthService';
 import { useMessage } from '../context/messageContext';
 
@@ -34,8 +35,8 @@ export default function Login({ navigation }) {
                 <Text style={styles.title}>Entrar no App</Text>
             </View>
 
-            <TextInput 
-                style={styles.input} 
+            <PaperInput 
+                style={styles.input}
                 placeholder="E-mail" 
                 placeholderTextColor={"#000"}
                 value={email}
@@ -45,26 +46,19 @@ export default function Login({ navigation }) {
             />
             
             <View style={styles.passwordContainer}>
-                <TextInput 
-                    style={styles.inputPassword} 
-                    placeholder="Senha" 
-                    placeholderTextColor={"#000"}
-                    underlineColorAndroid="transparent"
+                <PaperInput
+                    style={styles.passwordInput}
+                    label="Senha"
                     value={password}
                     onChangeText={setPassword}
-                />
-
-                {/* Ícone para mostrar a senha */}
-                <TouchableOpacity 
-                    onPress={() => setShowPassword(!showPassword)}
-                    style={styles.iconStyle}
-                    >
-                        <Ionicons 
-                            name={showPassword ? "eye-off" : "eye"} 
-                            size={24} 
-                            color="#888" 
+                    secureTextEntry={!showPassword}
+                    right={
+                        <PaperInput.Icon
+                        icon={showPassword ? "eye-off" : "eye"}
+                        onPress={() => setShowPassword(!showPassword)}
                         />
-                </TouchableOpacity>
+                    }
+                    />
             </View>
 
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
@@ -94,7 +88,7 @@ const styles = StyleSheet.create({
     form: {
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         marginBottom: 40,
     },
 
@@ -118,8 +112,8 @@ const styles = StyleSheet.create({
         
     input: { 
         borderWidth: 1, 
+        color: '#000',
         borderColor: '#ddd', 
-        padding: 15, 
         borderRadius: 8, 
         marginBottom: 15 
     },
@@ -127,16 +121,16 @@ const styles = StyleSheet.create({
     passwordContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#ccc',
         borderRadius: 8,
-        paddingHorizontal: 10,
         marginBottom: 15,
     },  
 
-    inputPassword: {
+    passwordInput: {
         flex: 1,
-        paddingVertical: 15,
+        borderWidth: 1, 
+        color: '#000',
+        borderColor: '#ddd', 
+        borderRadius: 8, 
     },
     
     iconStyle: {
