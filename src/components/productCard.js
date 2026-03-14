@@ -118,12 +118,16 @@ export default function ProductCard({ product, onEdit, onDelete }) {
       >
         {/* Cabeçalho */}
         <View style={styles.header}>
+          {/* Botão de editar */}
           <TouchableOpacity style={styles.editButton} onPress={onEdit}>
             <Image style={styles.editeImg} source={require("../../assets/compose.png")} />
           </TouchableOpacity>
+
+          {/* Icone do produto */}
           <View style={styles.imageSection}>
             <Image source={image} style={styles.image} />
           </View>
+          {/* Título e categoria */}
           <View style={styles.titleSection}>
             <Text style={styles.title}>{product.name}</Text>
             <Text style={styles.category}>{`Categoria: ${product.category}`}</Text>
@@ -157,7 +161,8 @@ export default function ProductCard({ product, onEdit, onDelete }) {
           )}
 
           <View style={styles.row}>
-            <Text style={styles.label}>Quantidade</Text>
+            {/* Exibe "Kg" para carnes, frutas e verduras, caso contrário "Un" */}
+            <Text style={styles.label}>{['carnes', 'frutas', 'verduras'].includes(product.category) ? 'Quantidade (Kg)' : 'Quantidade (Un)'}</Text>
             <Text style={styles.value}>{product.quantity}</Text>
           </View>
         </View>

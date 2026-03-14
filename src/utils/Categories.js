@@ -1,8 +1,17 @@
 export const categories = [
   { label: 'Selecione uma categoria', value: 'default' },
+  {label: '🛒 Supermercado', value: 'supermercado' },
+  { label:'🧼 Limpeza', value: 'limpeza' },
   { label: '🥩 Carnes', value: 'carnes' },
   { label: '🍎 Frutas', value: 'frutas' },
   { label: '🥦 Verduras', value: 'verduras' },
   { label: '🥤 Bebidas', value: 'bebidas' },
   { label: '🍞 Padaria', value: 'padaria' },
+  { label: '🍫 Doces', value: 'doces' },
+  { label: '🥪 Lanches', value: 'lanches' },
+  { label: '🍽️ Utensílios', value: 'utensilios' },
+  { label: '👕 Roupas', value: 'roupas' },
+  { label: '📱 Eletrônicos', value: 'eletronicos' },
+  { label: '🚗 Veiculos', value: 'veiculos' },
+  { label: 'Outros', value: 'outros' },
 ];

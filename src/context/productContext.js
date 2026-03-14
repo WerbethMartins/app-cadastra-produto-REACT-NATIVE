@@ -59,13 +59,15 @@ export function ProductProvider({ children }) {
           unsubscribeSnapshot = onSnapshot(q, (querySnapshot) => {
             const list = [];
             querySnapshot.forEach((doc) => {
-              const data = doc.data();
+              const data = doc.data({ serverTimestamps: 'estimate' }); 
+              
               list.push({
                 ...data,
                 id: doc.id,
-                createdAt: data.createdAt?.toDate() || new Date(), 
+                createdAt: data.createdAt?.toDate() 
               });
             });
+            
             setProducts(list);
             setLoading(false);
           }, (error) => {
@@ -147,14 +149,26 @@ export function ProductProvider({ children }) {
     });
   }
 
-  async function editProduct(id, name, price, quantity, category, branding = '') {
-    console.log("Tentando editar o produto com ID:", id);
+  const formatDate = (timestamp) => {
+    if(!timestamp) return 'Data desconhecida';
+    // Converte o Timestamp do Firebase para um objeto Date do JS
+    const date = timestamp.toDate();
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2); // Pega os ultimos dois digitos
+
+    return `${day}/${month}/${year}`; 
+  };
+
+  // Editar produto existente
+  async function editProduct(id, name, price, quantity) {
     const user = auth.currentUser;
     if (!user) return;
-
     const docRef = doc(db, 'users', user.uid, 'products', id);
     await updateDoc(docRef, {
-      name, price, quantity
+      name, price, quantity,
+      createdAt: serverTimestamp() // Atualiza a data para a data atual
     });
   }
 
@@ -193,6 +207,7 @@ export function ProductProvider({ children }) {
         getPriceDifference,
         uniqueProductNames,
         addProduct,
+        formatDate,
         editProduct,
         removeProduct,
       }}

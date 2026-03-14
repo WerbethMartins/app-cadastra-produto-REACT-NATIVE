@@ -1,8 +1,17 @@
 export const productImages = {
+    supermercado: require('../../assets/grocery-cart.png'),
+    limpeza: require('../../assets/cleaning.png'),
     carnes: require('../../assets/barbecue.png'),
     frutas: require('../../assets/basket.png'),
     bebidas: require('../../assets/soft-drink.png'),
-    limpeza: require('../../assets/cleaning.png'),
+    verduras: require('../../assets/vegetable.png'),
     padaria: require('../../assets/bakery.png'),
+    doces: require('../../assets/sweets.png'),
+    lanches: require('../../assets/burger.png'),
+    utensilios: require('../../assets/cookware.png'),
+    roupas: require('../../assets/clothes-rack.png'),
+    eletronicos: require('../../assets/gadgets.png'),
+    veiculos: require('../../assets/vehicle.png'),
+    outros: require('../../assets/product-development.png'),
     default: require('../../assets/basket.png'),
 }

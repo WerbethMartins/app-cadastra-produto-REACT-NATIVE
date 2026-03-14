@@ -12,7 +12,7 @@ export default function ProductForm({ navigation, route }) {
   // Verifica se está no modo de edição
   const productToEdit = route.params?.product;
 
-  const { addProduct, editProduct } = useProduct();
+  const {addProduct, editProduct } = useProduct();
   const {uniqueProductNames} = useProduct();
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -50,7 +50,7 @@ export default function ProductForm({ navigation, route }) {
 
     try {
         const priceNum = parseFloat(price.toString().replace(',', '.'));
-        const qtyNum = parseInt(quantity) || 1; // Garante pelo menos um item
+        const qtyNum = quantity ? parseFloat(quantity.toString().replace(',', '.')) : 0;
 
         if (productToEdit) {
           // Se existe o produto na rota, será usado a função de editar
@@ -145,7 +145,7 @@ export default function ProductForm({ navigation, route }) {
         />
         <TextInput
           style={styles.input}
-          placeholder="Quantidade"
+          placeholder="Kg ou Unidades" 
           placeholderTextColor={'#000'}
           keyboardType="numeric"
           onChangeText={setQuantity}
@@ -200,13 +200,13 @@ const styles = StyleSheet.create({
   },
 
   select: {
-  borderWidth: 1,
-  borderColor: '#ccc',
-  borderRadius: 8,
-  padding: 12,
-  marginBottom: 8,
-  backgroundColor: '#fff',
-},
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+    backgroundColor: '#fff',
+  },
 
   selectText: {
     fontSize: 14,
@@ -214,23 +214,35 @@ const styles = StyleSheet.create({
   },
 
   dropdown: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
+    flexDirection: 'row', 
+    flexWrap: 'wrap',    
+    justifyContent: 'space-between', 
     backgroundColor: '#fff',
-    marginBottom: 12,
-    overflow: 'hidden',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#eee',
+    elevation: 3,
   },
 
   option: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    backgroundColor: '#f9f9f9',
+    paddingVertical: 12,
+    paddingHorizontal: 5,
+    marginBottom: 10,
+    width: '48%', // Garante que caibam 2 itens por linha (sobrando 4% de espaço)
   },
 
   optionText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#333',
+    textAlign: 'center',
+    fontWeight: '500',
   },
 
   suggestionsContainer: {

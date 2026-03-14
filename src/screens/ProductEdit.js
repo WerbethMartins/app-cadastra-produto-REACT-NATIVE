@@ -15,17 +15,21 @@ export default function ProductEdit({ route, navigation }) {
   const [price, setPrice] = useState(String(product.price));
   const [quantity, setQuantity] = useState(String(product.quantity));
 
+  // Função para editar o produto
   async function handleUpdate() {
-    try {
-  
-      await editProduct(product.id, name, price, quantity);
-
-      console.log("Produto editado com sucesso!");
-      showMessage("Produto atualizado!", "success");
-      navigation.goBack(); // Volta para a lista
+    if(!name || !price){
+      showMessage("Preencha o nome e o preço!", "error");
+      return;
+    }
+    try {        
+        const priceNum = parseFloat(price.toString().replace(',', '.'));
+        const qtyNum = quantity ? parseFloat(quantity.toString().replace(',', '.')) : 0;
+        await editProduct(product.id, name, priceNum, qtyNum);
+        showMessage("Produto atualizado com sucesso!", "success");
+        navigation.goBack();
     } catch (error) {
-      console.error("Erro ao atualizar:", error);
-      alert("Erro ao atualizar o produto.");
+        console.error("Erro ao atualizar o produto:", error);
+        showMessage("Erro ao atualizar o produto!", "error");
     }
   }
 

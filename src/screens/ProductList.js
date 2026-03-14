@@ -12,11 +12,11 @@ import { HelpMenu } from '../components/helpMenu';
 import { useTutorial } from '../hooks/useTutorial';
 
 // React e React Native
-import { FlatList, Button, View, Text, StyleSheet, Image, TouchableOpacity, Animated, ScrollView } from 'react-native';
+import { FlatList, View, Text, StyleSheet, Image, TouchableOpacity, Animated, SectionList } from 'react-native';
 import { useState, useRef, useEffect} from 'react';
 
 export default function ProductList() {
-  const { filteredProducts,products, selectedMonth,loading, removeProduct } = useProduct();
+  const { products, loading, removeProduct } = useProduct();
   const { isTutorialActive, stepData, startTutorial, nextStep, stopTutorial } = useTutorial();
   const navigation = useNavigation();
   const [isMenuVisible, setIsMenuVisible] = useState(false);
@@ -26,6 +26,43 @@ export default function ProductList() {
   const buttonTranslateX = useRef(new Animated.Value(-50)).current;
   const iconOpacity = useRef(new Animated.Value(0)).current;
   const iconTranslateX = useRef(new Animated.Value(50)).current;
+
+  // Função para separar os produtos por data (exemplo: 01/01/2024)
+  const groupProductsByDate = (products) => {
+    if (!products || products.length === 0) return [];
+
+    const groups = products.reduce((acc, product) => {
+      let dateStr = 'Sem data';
+
+      if (product.createdAt) {
+        // Se já for um objeto Date (ou seja, já foi convertido), formata diretamente
+        if (product.createdAt instanceof Date) {
+          dateStr = product.createdAt.toLocaleDateString('pt-BR');
+        } 
+
+        // Caso ainda seja um Timestamp do Firebase
+        else if (product.createdAt.toDate) {
+          dateStr = product.createdAt.toDate().toLocaleDateString('pt-BR');
+        }
+      }
+
+      if (!acc[dateStr]) {
+        acc[dateStr] = [];
+      }
+      acc[dateStr].push(product);
+      return acc;
+    }, {});
+
+    // DEBUG: MOstra no console se as chaves (datas) estão vindo diferentes
+    // console.log("Grupos criados:", Object.keys(groups));
+
+    return Object.keys(groups).map(date => ({
+      title: date,
+      data: groups[date]
+    }));
+  };
+
+  const sections = groupProductsByDate(products);
 
   // Animação de entrada dos botões e ícones
   useEffect(() => {
@@ -92,26 +129,23 @@ export default function ProductList() {
 
         {/* Seletor de meses */}    
         <MonthSelector />
-      
           {/* Lista de produtos */}  
           <View style={styles.productList}>
-            <FlatList
-              data={filteredProducts}
-              keyExtractor={item => item.id}
-              contentContainerStyle={{ paddingBottom: 20 }}
-              ListHeaderComponent={<HeaderSummary />} /* Ele aparece no topo */
+            <SectionList
+              sections={sections}
+              keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <ProductCard
+                <ProductCard 
                   product={item}
                   onEdit={() => navigation.navigate('Editar', { product: item })}
-                  onDelete={() => handleRemove(item.id)}
+                  onRemove={() => handleRemove(item.id)}
                 />
               )}
-              ListEmptyComponent={
-                <Text style={{ textAlign: 'center', marginTop: 20 }}>
-                  Nenhum produto cadastrado neste mês.
-                </Text> 
-              }
+              renderSectionHeader={({ section: { title } }) => (
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionHeaderText}>📅 Compras de {title}</Text>
+                </View>
+              )}
             />
           </View>
 
@@ -176,6 +210,21 @@ const styles = StyleSheet.create({
     padding: 5,
     width: '100%',
     maxHeight: 600,
+  },
+
+  sectionHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: '#f8f9fa', 
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 10,
+  },
+
+  sectionHeaderText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2c3e50',
   },
 
   helpButton: {
