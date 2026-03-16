@@ -2,6 +2,8 @@ export const productImages = {
     supermercado: require('../../assets/grocery-cart.png'),
     limpeza: require('../../assets/cleaning.png'),
     carnes: require('../../assets/barbecue.png'),
+    frangos: require('../../assets/chicken-leg.png'),
+    pescados: require('../../assets/seafood.png'),
     frutas: require('../../assets/basket.png'),
     bebidas: require('../../assets/soft-drink.png'),
     verduras: require('../../assets/vegetable.png'),

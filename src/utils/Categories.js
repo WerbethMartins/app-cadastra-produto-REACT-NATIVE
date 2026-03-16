@@ -3,6 +3,8 @@ export const categories = [
   {label: '🛒 Supermercado', value: 'supermercado' },
   { label:'🧼 Limpeza', value: 'limpeza' },
   { label: '🥩 Carnes', value: 'carnes' },
+  { label: '🍗 Frangos', value: 'frangos' },
+  { label: '🦞 Pescados', value: 'pescados' },
   { label: '🍎 Frutas', value: 'frutas' },
   { label: '🥦 Verduras', value: 'verduras' },
   { label: '🥤 Bebidas', value: 'bebidas' },

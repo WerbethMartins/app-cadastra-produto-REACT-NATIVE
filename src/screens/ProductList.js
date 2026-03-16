@@ -16,7 +16,7 @@ import { FlatList, View, Text, StyleSheet, Image, TouchableOpacity, Animated, Se
 import { useState, useRef, useEffect} from 'react';
 
 export default function ProductList() {
-  const { products, loading, removeProduct } = useProduct();
+  const { products, filteredProducts, selectMonth,loading, removeProduct } = useProduct();
   const { isTutorialActive, stepData, startTutorial, nextStep, stopTutorial } = useTutorial();
   const navigation = useNavigation();
   const [isMenuVisible, setIsMenuVisible] = useState(false);
@@ -132,13 +132,15 @@ export default function ProductList() {
           {/* Lista de produtos */}  
           <View style={styles.productList}>
             <SectionList
+              data={filteredProducts}
               sections={sections}
               keyExtractor={(item) => item.id}
+              ListHeaderComponent={<HeaderSummary />}
               renderItem={({ item }) => (
                 <ProductCard 
                   product={item}
                   onEdit={() => navigation.navigate('Editar', { product: item })}
-                  onRemove={() => handleRemove(item.id)}
+                  onDelete={() => handleRemove(item.id)}
                 />
               )}
               renderSectionHeader={({ section: { title } }) => (
