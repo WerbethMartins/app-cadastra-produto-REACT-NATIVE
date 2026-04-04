@@ -62,7 +62,7 @@ export default function ProductList() {
     }));
   };
 
-  const sections = groupProductsByDate(products);
+  const sections = groupProductsByDate(filteredProducts);
 
   // Animação de entrada dos botões e ícones
   useEffect(() => {
@@ -136,6 +136,7 @@ export default function ProductList() {
               sections={sections}
               keyExtractor={(item) => item.id}
               ListHeaderComponent={<HeaderSummary />}
+              stickyHeaderHiddenOnScroll={true}
               renderItem={({ item }) => (
                 <ProductCard 
                   product={item}
@@ -208,10 +209,10 @@ const styles = StyleSheet.create({
   },  
 
   productList: {
+    flex: 1,
     display: 'flex',
     padding: 5,
     width: '100%',
-    maxHeight: 600,
   },
 
   sectionHeader: {
