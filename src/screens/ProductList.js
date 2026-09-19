@@ -12,13 +12,15 @@ import { HelpMenu } from '../components/helpMenu';
 import { useTutorial } from '../hooks/useTutorial';
 
 // React e React Native
-import { FlatList, View, Text, StyleSheet, Image, TouchableOpacity, Animated, SectionList } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, SectionList } from 'react-native';
 import { useState, useRef, useEffect} from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProductList() {
   const { products, filteredProducts, selectMonth,loading, removeProduct } = useProduct();
   const { isTutorialActive, stepData, startTutorial, nextStep, stopTutorial } = useTutorial();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   // Referências para as animações
@@ -132,10 +134,14 @@ export default function ProductList() {
           {/* Lista de produtos */}  
           <View style={styles.productList}>
             <SectionList
-              data={filteredProducts}
               sections={sections}
               keyExtractor={(item) => item.id}
               ListHeaderComponent={<HeaderSummary />}
+              contentContainerStyle={[
+                styles.productListContent,
+                { paddingBottom: insets.bottom + 80 },
+              ]}
+              scrollIndicatorInsets={{ bottom: insets.bottom + 80 }}
               stickyHeaderHiddenOnScroll={true}
               renderItem={({ item }) => (
                 <ProductCard 
@@ -183,6 +189,7 @@ export default function ProductList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 10,
   },
 
   navigateButtonSection: {
@@ -211,8 +218,12 @@ const styles = StyleSheet.create({
   productList: {
     flex: 1,
     display: 'flex',
-    padding: 5,
+    padding: 10,
     width: '100%',
+  },
+
+  productListContent: {
+    paddingBottom: 80,
   },
 
   sectionHeader: {

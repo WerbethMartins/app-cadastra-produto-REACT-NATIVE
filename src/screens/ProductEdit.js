@@ -2,7 +2,6 @@ import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity, Animated }
 import { useEffect, useRef, useState } from 'react';
 import { useProduct } from '../context/productContext';
 
-import { auth } from '../service/AuthService';
 import { useMessage } from '../context/messageContext';
 
 export default function ProductEdit({ route, navigation }) {

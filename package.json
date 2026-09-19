@@ -31,6 +31,8 @@
   },
   "private": true,
   "devDependencies": {
-    "jest-expo": "^54.0.16"
+    "@types/react": "~19.1.10",
+    "jest-expo": "^54.0.16",
+    "typescript": "~5.9.2"
   }
 }

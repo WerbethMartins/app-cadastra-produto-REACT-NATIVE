@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ProductList from "../screens/ProductList";
 import ProductForm from "../screens/ProductForm";
@@ -8,6 +9,8 @@ import ProductForm from "../screens/ProductForm";
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
+    const insets = useSafeAreaInsets();
+
     return(
         <Tab.Navigator
             screenOptions={{
@@ -16,8 +19,9 @@ export default function TabNavigator() {
                 tabBarInactiveTintColor: '#999',
                 tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold', marginBottom: 5 },
                 tabBarStyle: { 
-                    height: 60, 
-                    paddingTop: 6  
+                    height: 60 + insets.bottom,
+                    paddingTop: 6,
+                    paddingBottom: Math.max(insets.bottom, 8),
                 },
             }}
         >

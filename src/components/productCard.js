@@ -162,7 +162,7 @@ export default function ProductCard({ product, onEdit, onDelete }) {
 
           <View style={styles.row}>
             {/* Exibe "Kg" para carnes, frutas e verduras, caso contrário "Un" */}
-            <Text style={styles.label}>{['carnes', 'frutas', 'verduras'].includes(product.category) ? 'Quantidade (Kg)' : 'Quantidade (Un)'}</Text>
+            <Text style={styles.label}>{['carnes', 'frutas', 'verduras', 'frangos', 'pescados'].includes(product.category) ? 'Quantidade (Kg)' : 'Quantidade (Un)'}</Text>
             <Text style={styles.value}>{product.quantity}</Text>
           </View>
         </View>

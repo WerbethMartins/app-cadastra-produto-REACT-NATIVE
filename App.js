@@ -1,6 +1,7 @@
 // Importação Navigator
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Importação Firebase 
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -39,15 +40,17 @@ export default function App() {
   if (initializing) return null;
   
   return (
-    <PaperProvider theme={MD3LightTheme}>
-      <MessageProvider>
-        <ProductProvider  >
-          <NavigationContainer>
-            {/* Se existir 'user', mostra as telas do App. Se não, mostra Login */}
-            { user ?  <AppNavigator /> : <AppNavigator /> }
-          </NavigationContainer>
-        </ProductProvider>
-      </MessageProvider>
-    </PaperProvider>
+    <SafeAreaProvider>
+      <PaperProvider theme={MD3LightTheme}>
+        <MessageProvider>
+          <ProductProvider  >
+            <NavigationContainer>
+              {/* Se existir 'user', mostra as telas do App. Se não, mostra Login */}
+              { user ?  <AppNavigator /> : <AppNavigator /> }
+            </NavigationContainer>
+          </ProductProvider>
+        </MessageProvider>
+      </PaperProvider>
+    </SafeAreaProvider>
   );
 }

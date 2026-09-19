@@ -1,9 +1,9 @@
 // Importação do elementos React-native
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Importação do elementos
-import { useProduct, uniqueProductNames } from '../context/productContext';
+import { useProduct } from '../context/productContext';
 import { categories } from '../utils/Categories';
 import { useMessage } from '../context/messageContext';
 
@@ -20,8 +20,22 @@ export default function ProductForm({ navigation, route }) {
   const [category, setCategory] = useState(null);
   const [openCategories, setOpenCategories] = useState(false);
   const [branding, setBranding] = useState('');
+  const [measureType, setMeasureType] = useState('un'); // 'un' ou 'kg'  
   const [suggestions, setSuggestions] = useState([]);
   const {showMessage} = useMessage();
+
+  // Carrega dados se for edição
+  useEffect(() => {
+    if(productToEdit){
+      setName(productToEdit.name);
+      setPrice(productToEdit.price.toString());
+      setQuantity(productToEdit.quantity.toString());
+      setCategory(productToEdit.category);
+      setBranding(productToEdit,branding || '');
+      // Tenta identificar se é kilo ou unidade pela categoria ou valor decimal
+      setMeasureType(productToEdit.quantity % 1 !== 0 ? 'kg' : 'un');
+    }
+  }, [productToEdit]);
 
   const handleNameChange = (text) => {
     setName(text);
@@ -49,15 +63,19 @@ export default function ProductForm({ navigation, route }) {
     }
 
     try {
-        const priceNum = parseFloat(price.toString().replace(',', '.'));
-        const qtyNum = quantity ? parseFloat(quantity.toString().replace(',', '.')) : 0;
+        const typedPrice = parseFloat(price.toString().replace(',', '.'));
+        const typeQty = quantity ? parseFloat(quantity.toString().replace(',', '.')) : 0;
+
+        // Se for 'KG', o 'typePrice' geralmente é o preço de 1kg
+        // O valor total que vai para o banco deve ser o preço real pago.
+        const finalPrice = typedPrice;
 
         if (productToEdit) {
           // Se existe o produto na rota, será usado a função de editar
-          await editProduct(editProduct.id, name, priceNum, qtyNum);
+          await editProduct(editProduct.id, name, finalPrice, typeQty);
         } else {
           // Caso contrário, será adicionado um novo
-          await addProduct(name, priceNum, qtyNum, category, branding);
+          await addProduct(name, finalPrice, typeQty, category, branding);
           showMessage("Produto adicionado a lista!", "success");
         }
 
@@ -136,24 +154,44 @@ export default function ProductForm({ navigation, route }) {
           underlineColorAndroid="transparent"
         />
 
+        {/* SELETOR DE UNIDADE / KG */}
+        <View style={styles.measureContainer}>
+          <TouchableOpacity 
+            style={[styles.measureButton, measureType === 'un' && styles.measureActive]} 
+            onPress={() => setMeasureType('un')}
+          >
+            <Text style={[styles.measureText, measureType === 'un' && styles.measureTextActive]}>Unidade (un)</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.measureButton, measureType === 'kg' && styles.measureActive]} 
+            onPress={() => setMeasureType('kg')}
+          >
+            <Text style={[styles.measureText, measureType === 'kg' && styles.measureTextActive]}>Quilo (kg)</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.label}>Preço {measureType === 'kg' ? 'do Quilo' : 'da Unidade'}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Preço"
-          placeholderTextColor={'#000'}
+          placeholder="R$ 0,00"
           keyboardType="numeric"
+          value={price}
           onChangeText={setPrice}
         />
+
+        <Text style={styles.label}>{measureType === 'kg' ? 'Peso (ex: 0.500)' : 'Quantidade'}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Kg ou Unidades" 
-          placeholderTextColor={'#000'}
+          placeholder={measureType === 'kg' ? "0.000" : "0"}
           keyboardType="numeric"
+          value={quantity}
           onChangeText={setQuantity}
         />
       </View>
 
       <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>Criar Produto</Text>
+        <Text style={styles.buttonText}>{productToEdit ? "Salvar Alterações" : "Criar Produto"}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -223,6 +261,33 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eee',
     elevation: 3,
+  },
+
+  measureContainer: {
+    flexDirection: 'row',
+    marginBottom: 15,
+    gap: 10,
+    width: '100%'
+  },
+  measureButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    alignItems: 'center',
+    backgroundColor: '#fff'
+  },
+  measureActive: {
+    backgroundColor: '#06beaf',
+    borderColor: '#06beaf'
+  },
+  measureText: {
+    color: '#333',
+    fontWeight: 'bold'
+  },
+  measureTextActive: {
+    color: '#fff'
   },
 
   option: {
