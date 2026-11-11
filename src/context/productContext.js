@@ -12,7 +12,8 @@ import {
   deleteDoc, 
   doc, 
   getDoc,
-  serverTimestamp 
+  serverTimestamp,
+  deleteField 
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -172,6 +173,17 @@ export function ProductProvider({ children }) {
     });
   }
 
+  // Salva a decisão de comprar novamente: 'yes' | 'no' | null (limpa)
+  async function setBuyAgain(id, choice) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const docRef = doc(db, 'users', user.uid, 'products', id);
+    await updateDoc(docRef, {
+      buyAgain: choice ?? deleteField(),
+    });
+  }
+
   async function removeProduct(id) {
     const user = auth.currentUser;
     if (!user) return;
@@ -209,6 +221,7 @@ export function ProductProvider({ children }) {
         addProduct,
         formatDate,
         editProduct,
+        setBuyAgain,
         removeProduct,
       }}
     >

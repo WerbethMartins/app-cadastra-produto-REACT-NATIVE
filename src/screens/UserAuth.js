@@ -6,9 +6,6 @@ import { signUp } from '../service/AuthService';
 // Import Context
 import { useMessage } from '../context/messageContext';
 
-//Pacote Expo
-import { Ionicons } from '@expo/vector-icons';
-
 export default function UserAuth({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

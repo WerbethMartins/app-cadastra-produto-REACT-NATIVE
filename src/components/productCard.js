@@ -1,20 +1,34 @@
 import { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, PanResponder, Image } from 'react-native';
+
 import { productImages } from '../utils/productImages';
 import { useProduct } from '../context/productContext';
+import { BuyAgainQuestion } from './BuyAgainQuestion';
+import { Dimensions } from 'react-native';
 
-const SCREEN_WIDTH = 400; // Largura aproximada da tela
+const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = -0.25 * SCREEN_WIDTH; // Limite para considerar swipe
 
 export default function ProductCard({ product, onEdit, onDelete }) {
-
-  const {getPriceDifference} = useProduct();
+  const [ buyAgainQuestionMenu, setBuyAgainQuestionMenu] = useState(false);
+  const {getPriceDifference, setBuyAgain } = useProduct();
   const priceStatus = getPriceDifference(product.name, product.price, product.createdAt, product.branding);
 
   const image = productImages[product.category] || productImages.default;
+
+  const buyAgain = product.buyAgain ?? null;
+
+  // Função para atualizar a cor e adicionar o texto, após clicar nas opções de comprar novamente
+  const handleBuyAgainChoice = async (choice) => {
+    setBuyAgainQuestionMenu(false);
+    try {
+      await setBuyAgain(product.id, choice);
+    } catch (error) {
+      console.error('Erro ao salvar decisão de compra:', error);
+    }
+  };
   
   // Referência para animação
-  const fadeAnim = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const scaleY = useRef(new Animated.Value(80)).current; // altura inicial real
   const opacity = useRef(new Animated.Value(1)).current;
@@ -86,31 +100,50 @@ export default function ProductCard({ product, onEdit, onDelete }) {
     ]).start(() => onDelete(product.id));
   };
 
+  {/* Tinta do card, para mudar a cor do card, dependendo da escolha */}
+  const cardTint =
+    buyAgain === 'yes' ? { backgroundColor: '#ECFDF5', borderColor: '#2e7d32', borderWidth: 1 } :
+    buyAgain === 'no'  ? { backgroundColor: '#FEF2F2', borderColor: '#c62828', borderWidth: 1 } :
+  null;
+
   return (
-    <Animated.View style={[styles.card, 
-      { 
-        opacity,
-        transform: [{ 
-          scaleY: scaleY.interpolate({
-            inputRange: [0, 80],
-            outputRange: [0, 1],
-          }),
-        }],
-        transformOrigin: 'top',
-        overflow: 'hidden', 
-      }
-    ]}>
+    <>
+      <Animated.View style={[styles.card, 
+        { 
+          opacity,
+          transform: [{ 
+            scaleY: scaleY.interpolate({
+              inputRange: [0, 80],
+              outputRange: [0, 1],
+            }),
+          }],
+          transformOrigin: 'top',
+          overflow: 'hidden', 
+        }
+      ]}>
 
       {/* Fundo vermelho que aparece ao arrastar */}
-      <View style={styles.deleteBackground}>
+      <Animated.View
+        style={[
+          styles.deleteBackground,
+          {
+            opacity: translateX.interpolate({
+              inputRange: [-80, 0],
+              outputRange: [1, 0],
+              extrapolate: 'clamp',
+            }),
+          },
+        ]}
+      >
         <Text style={styles.deleteText}>Excluir</Text>
-      </View>
+      </Animated.View>
 
       {/* Animação mover o card */}
       <Animated.View
         {...panResponder.panHandlers}
         style={[
           styles.foregroundCard,
+          cardTint, // Aplica a tinta do card
           {
             transform: [{ translateX }],
           },
@@ -118,26 +151,52 @@ export default function ProductCard({ product, onEdit, onDelete }) {
       >
         {/* Cabeçalho */}
         <View style={styles.header}>
-          {/* Botão de editar */}
-          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-            <Image style={styles.editeImg} source={require("../../assets/compose.png")} />
-          </TouchableOpacity>
-
-          {/* Icone do produto */}
-          <View style={styles.imageSection}>
-            <Image source={image} style={styles.image} />
-          </View>
-          {/* Título e categoria */}
-          <View style={styles.titleSection}>
-            <Text style={styles.title}>{product.name}</Text>
-            <Text style={styles.category}>{`Categoria: ${product.category}`}</Text>
-
-            {/* Exibe a marca apenas se ela existir */}
-            {product.branding ? (
-              <Text style={styles.branding}>{`Marca: ${product.branding}`}</Text>
-            ) : (
-              <Text style={[styles.branding, { fontStyle: 'italic', opacity: 0.5 }]}>Sem marca</Text>
+          <View style={styles.headerButtons}>
+            {buyAgain && (
+              <TouchableOpacity onPress={() => handleBuyAgainChoice(null)} style={styles.cancel}>
+                <Text style={styles.cancelText}>Limpar decisão</Text>
+              </TouchableOpacity>
             )}
+          
+            <View style={styles.editButtons}>
+              {/* Botão de comprar novamente */}
+              <TouchableOpacity style={styles.refreshButton} onPress={() => setBuyAgainQuestionMenu(true)}>
+                <Image style={styles.refreshImg} source={require("../../assets/refresh.png")} />
+              </TouchableOpacity>
+
+              {/* Botão de editar */}
+              <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+                <Image style={styles.editeImg} source={require("../../assets/compose.png")} />
+              </TouchableOpacity>  
+            </View>  
+          </View>
+
+          <View style={styles.cardBodyColumn}>
+            <View style={styles.cardBodySection}>
+              {/* Icone do produto */}
+              <View style={styles.imageSection}>
+                <Image source={image} style={styles.image} />
+              </View>
+              {/* Título e categoria */}
+              <View style={styles.titleSection}>
+                 {/* Texto após a escolha */}
+                {buyAgain === 'yes' && (
+                  <Text style={{ color: '#2e7d32', fontWeight: 'bold' }}>✅ Comprar novamente</Text>
+                )}
+                {buyAgain === 'no' && (
+                  <Text style={{ color: '#c62828', fontWeight: 'bold' , marginEnd: 10, borderWidth: 1, borderColor: '#c62828', padding: 5 }}>🚫 Não comprar</Text>
+                )}
+                <Text style={styles.title}>{product.name}</Text>
+                <Text style={styles.category}>{`Categoria: ${product.category}`}</Text>
+
+                {/* Exibe a marca apenas se ela existir */}
+                {product.branding ? (
+                  <Text style={styles.branding}>{`Marca: ${product.branding}`}</Text>
+                ) : (
+                  <Text style={[styles.branding, { fontStyle: 'italic', opacity: 0.5 }]}>Sem marca</Text>
+                )}
+              </View>
+            </View>
           </View>
         </View>
 
@@ -175,6 +234,13 @@ export default function ProductCard({ product, onEdit, onDelete }) {
         </View>
       </Animated.View>
     </Animated.View>
+
+      <BuyAgainQuestion
+        isVisible={buyAgainQuestionMenu}
+        onClose={() => setBuyAgainQuestionMenu(false)}
+        onChoose={handleBuyAgainChoice}
+      />  
+    </>
   );
 }
 
@@ -186,12 +252,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 30,
     marginVertical: 5,
     width: '85%',
-    height: 200,
+    height: 'auto',
     elevation: 4, // sombra Android
   },
 
   deleteBackground: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'flex-end',
     borderRadius: 12,
@@ -215,25 +281,77 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    flexDirection: 'row',
+    display: "flex",
+    flexDirection: 'colunm',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+ 
+  headerButtons: {
+    flexDirection: "row",
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%',
+    gap: 5,
+    marginBottom: 10,
+  },
+
+  editButtons: {
+    flexDirection: "row",
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '30%',
+  },
+
+  cancel: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    backgroundColor: '#a303ff',
+    padding: 8,
+    marginBottom: 2,
+  },
+
+  cancelText: {
+    color: '#fff',
+  },
+
+  cardBodySection: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },  
+
+   cardBodyColumn: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+
+  refreshButton: {
+    flex: 1,
+    alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: 'none',
+    width: 10,
+  },
+
+  refreshImg: {
+    width: 30,
+    height: 30,
+    elevation: 4,
   },
 
   editButton: {
     flex: 1,
-    position: 'absolute',
     alignItems: 'center',
     borderRadius: 8,
-    margiroundColor: '#FEE2E2',
-    paddinRight: 6,
-    top: -10,
-    right: -5,
   },
 
   editeImg: {
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 30,
     elevation: 4,
   },  
 
@@ -241,11 +359,10 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    gap: 5,
+    gap: 2,
     width: '65%',
-    marginTop: 10,
     marginLeft: 5,
-    height: 100,
+    height: 'auto',
   },
 
   image: {
@@ -270,7 +387,11 @@ const styles = StyleSheet.create({
   },  
 
   content: {
+    display: 'flex',
+    flexDirection: 'column', 
     gap: 4,
+    padding: 5,
+    marginTop: 2,
   },
 
   row: {

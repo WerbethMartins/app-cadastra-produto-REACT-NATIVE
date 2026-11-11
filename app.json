@@ -35,7 +35,8 @@
       }
     },
     "plugins": [
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-status-bar"
     ],
     "owner": "werbeth",
     "runtimeVersion": {

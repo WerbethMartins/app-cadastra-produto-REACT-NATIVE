@@ -5,7 +5,7 @@ import { ActivityIndicator } from 'react-native';
 
 import { logout } from '../service/AuthService';
 
-export default function Home(products, setProducts) {
+export default function Home(setProducts) {
     const navigation = useNavigation();
 
     // Estados 

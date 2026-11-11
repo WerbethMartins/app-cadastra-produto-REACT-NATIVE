@@ -1,5 +1,4 @@
 import { View, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
 import {getAuth, createUserWithEmailAndPassword} from 'firebase/auth';
 import app from '../configuracao/firebaseConfig';

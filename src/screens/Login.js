@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { TextInput as PaperInput } from 'react-native-paper';
 import { signIn } from '../service/AuthService';
 import { useMessage } from '../context/messageContext';
 
-// Pacote Expo
-import { Ionicons } from '@expo/vector-icons';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
@@ -23,7 +21,7 @@ export default function Login({ navigation }) {
         if (error.code === 'auth/invalid-credential') showMessage("E-mail ou senha incorretos.", "error");
         if (error.code === 'auth/invalid-email') showMessage("E-mail inválido.", "error");
       
-        Alert.alert('Erro de Login', message);
+        Alert.alert('Erro de Login', 'Falha no login. Verifique suas credenciais.');
     }
   };
 

@@ -12,8 +12,8 @@ import { HelpMenu } from '../components/helpMenu';
 import { useTutorial } from '../hooks/useTutorial';
 
 // React e React Native
-import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, SectionList } from 'react-native';
-import { useState, useRef, useEffect} from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, SectionList, TextInput } from 'react-native';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProductList() {
@@ -22,6 +22,7 @@ export default function ProductList() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Referências para as animações
   const buttonOpacity = useRef(new Animated.Value(0)).current;
@@ -64,8 +65,15 @@ export default function ProductList() {
     }));
   };
 
-  const sections = groupProductsByDate(filteredProducts);
+  // Mês selecionado + busca por nome, nessa ordem
+  const visibleProducts = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return filteredProducts;
+    return filteredProducts.filter(p => p.name.toLowerCase().includes(query));
+  }, [filteredProducts, searchQuery]);
 
+  const sections = groupProductsByDate(visibleProducts);
+  
   // Animação de entrada dos botões e ícones
   useEffect(() => {
     Animated.parallel([
@@ -96,6 +104,7 @@ export default function ProductList() {
   function handleRemove(id){
     removeProduct(id);
   }
+
 
   if (loading) {
     return (
@@ -129,6 +138,20 @@ export default function ProductList() {
           </Animated.View>
         </View>
 
+        <View style={styles.searchBar}>
+            <View style={styles.searchInputWrapper}>
+              <Image source={require('../../assets/search.png')} />
+              <TextInput 
+                style={styles.input}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Ex: Alvejante de Flores"
+                placeholderTextColor={'#000'}
+                underlineColorAndroid="transparent"
+              />
+            </View>
+        </View>
+
         {/* Seletor de meses */}    
         <MonthSelector />
           {/* Lista de produtos */}  
@@ -155,6 +178,14 @@ export default function ProductList() {
                   <Text style={styles.sectionHeaderText}>📅 Compras de {title}</Text>
                 </View>
               )}
+
+              ListEmptyComponent={
+                <Text style={{ textAlign: 'center', marginTop: 30, color: '#6B7280' }}>
+                  {searchQuery
+                    ? `Nenhum produto encontrado para "${searchQuery}" neste mês.`
+                    : 'Nenhum produto cadastrado neste mês.'}
+                </Text>
+              }
             />
           </View>
 
@@ -205,6 +236,29 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginBottom: 10,
     width: '90%',
+    boxShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)',
+  },
+
+  searchBar: {
+    display: 'flex',
+    flexDirection: 'column',
+    padding: 5,
+  },  
+
+  searchInputWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+  },  
+
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    padding: 5,
+    width: '84%',
     boxShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)',
   },
 
